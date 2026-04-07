@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Core Circuit — Shoulder Free</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f14; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.app { width: 100%; max-width: 480px; }
+.header { text-align: center; margin-bottom: 24px; }
+.header h1 { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: -0.3px; }
+.header p { font-size: 13px; color: #666; margin-top: 4px; }
+.timer-ring { position: relative; width: 200px; height: 200px; margin: 0 auto 20px; }
+.timer-ring svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: #1e1e2a; stroke-width: 10; }
+.ring-progress { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear, stroke 0.3s; }
+.timer-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+.timer-seconds { font-size: 58px; font-weight: 700; letter-spacing: -3px; line-height: 1; }
+.timer-phase { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+.exercise-card { background: #1a1a24; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid #2a2a38; }
+.ex-number { font-size: 11px; font-weight: 600; color: #555; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+.ex-name { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 6px; }
+.ex-note { font-size: 13px; color: #888; line-height: 1.5; }
+.ex-focus { display: inline-block; font-size: 11px; font-weight: 600; color: #818cf8; background: rgba(129,140,248,0.12); padding: 3px 8px; border-radius: 6px; margin-top: 6px; }
+.how-to-btn { display: block; width: 100%; margin-top: 10px; padding: 8px; background: #13131c; border: 1px solid #2a2a38; border-radius: 10px; color: #666; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; letter-spacing: 0.5px; }
+.how-to-btn:hover { background: #1e1e2a; color: #aaa; }
+.how-to-panel { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #2a2a38; }
+.how-to-panel.open { display: block; }
+.diagram-wrap { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+.diagram-frame { background: #13131c; border-radius: 10px; padding: 8px; flex: 1; text-align: center; border: 1px solid #222230; }
+.diagram-label { font-size: 10px; color: #444; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.steps { list-style: none; padding: 0; }
+.steps li { font-size: 12px; color: #888; line-height: 1.6; padding: 4px 0 4px 20px; position: relative; border-bottom: 1px solid #1e1e2a; }
+.steps li:last-child { border-bottom: none; }
+.steps li::before { content: attr(data-n); position: absolute; left: 0; color: #4f46e5; font-weight: 700; font-size: 11px; top: 5px; }
+.next-up { background: #13131c; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.next-label { font-size: 11px; color: #444; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.next-name { font-size: 13px; color: #666; font-weight: 500; }
+.controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+.btn { border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; padding: 13px 24px; }
+.btn-primary { background: #4f46e5; color: #fff; flex: 1; }
+.btn-primary:hover { background: #4338ca; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-secondary { background: #1e1e2a; color: #888; }
+.btn-secondary:hover { background: #252533; color: #aaa; }
+.progress-bar { background: #1a1a24; border-radius: 8px; height: 5px; margin-bottom: 6px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 8px; background: #4f46e5; transition: width 0.3s; }
+.progress-label { font-size: 12px; color: #444; text-align: center; }
+.complete { text-align: center; padding: 40px 20px; }
+.complete h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.complete p { color: #666; font-size: 15px; }
+.work-phase .ring-progress { stroke: #4f46e5; }
+.rest-phase .ring-progress { stroke: #22c55e; }
+.rest-phase .timer-phase { color: #22c55e; }
+.work-phase .timer-phase { color: #818cf8; }
+.countdown .timer-seconds { color: #ef4444; }
+.countdown .ring-progress { stroke: #ef4444 !important; }
+@keyframes pulse { 0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.08);} }
+.countdown .timer-center { animation: pulse 0.5s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Core Circuit</h1>
+    <p>15 exercises · 40s on · 20s off · zero shoulder load</p>
+  </div>
+
+  <div id="main">
+    <div class="timer-ring work-phase" id="ringWrap">
+      <svg width="200" height="200" viewBox="0 0 200 200">
+        <circle class="ring-bg" cx="100" cy="100" r="90"/>
+        <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="90" stroke-dasharray="565.5" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-seconds" id="timerDisplay">40</div>
+        <div class="timer-phase" id="phaseLabel">WORK</div>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-number" id="exNumber">Exercise 1 of 15</div>
+      <div class="ex-name" id="exName">Bicycle Crunch</div>
+      <div class="ex-note" id="exNote">Hands on temples, elbows wide. Opposite elbow to opposite knee, big torso rotation.</div>
+      <div class="ex-focus" id="exFocus">Rectus abdominis · Obliques</div>
+      <button class="how-to-btn" id="howToBtn" onclick="toggleHowTo()">▾ How to do this</button>
+      <div class="how-to-panel" id="howToPanel">
+        <div class="diagram-wrap" id="diagramWrap"></div>
+        <ul class="steps" id="stepsList"></ul>
+      </div>
+    </div>
+
+    <div class="next-up">
+      <span class="next-label">Next</span>
+      <span class="next-name" id="nextName">Reverse Crunch</span>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="mainBtn" onclick="toggleTimer()">Start</button>
+      <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">0 of 15 complete</div>
+  </div>
+
+  <div id="completeScreen" class="complete" style="display:none;">
+    <div style="font-size:48px;margin-bottom:16px;">💪</div>
+    <h2>Circuit Complete</h2>
+    <p>15 minutes. Zero shoulder load. Done.</p>
+    <br>
+    <button class="btn btn-primary" style="width:100%;" onclick="resetAll()">Go Again</button>
+  </div>
+</div>
+
+<script>
+// ── SVG helpers ───────────────────────────────────────────────────────────────
+function svg(w, h, content) {
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${content}</svg>`;
+}
+const S = { // stroke styles
+  body: 'stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" fill="none"',
+  head: 'stroke="#818cf8" stroke-width="2" fill="#1a1a24"',
+  floor: 'stroke="#2a2a38" stroke-width="1.5" fill="none"',
+  hi: 'stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" fill="none"'
+};
+function head(cx,cy,r=8){return `<circle cx="${cx}" cy="${cy}" r="${r}" ${S.head}/>`;}
+function line(x1,y1,x2,y2,hi=false){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${hi?S.hi:S.body}/>`;}
+function floor(y,x1=5,x2=95){return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" ${S.floor}/>`;}
+
+// Per-exercise diagrams: array of {label, svgContent}
+const diagrams = {
+  "Bicycle Crunch": [
+    { label:"Start", d: svg(100,70, floor(62) + head(50,12) +
+        line(50,20,50,40) + // torso
+        line(50,40,35,55) + line(35,55,20,62) + // left leg
+        line(50,40,65,55) + line(65,55,80,48) + // right leg bent
+        line(50,20,30,30) + line(30,30,18,26) + // left arm to temple
+        line(50,20,70,30) + line(70,30,82,26))  // right arm to temple
+    },
+    { label:"Crunch", d: svg(100,70, floor(62) + head(38,18) +
+        line(38,26,52,42) +
+        line(52,42,40,56) + line(40,56,28,62) +
+        line(52,42,68,50) + line(68,50,80,44,true) + // active leg highlighted
+        line(38,26,24,32) + line(24,32,16,28) +
+        line(38,26,54,30) + line(54,30,62,22,true)) // elbow to knee highlighted
+    }
+  ],
+  "Reverse Crunch": [
+    { label:"Start", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,50,62) + // body flat
+        line(50,62,35,52) + line(35,52,20,55) + // knees bent
+        line(82,62,82,56) + // neck
+        line(70,62,75,50) + line(60,62,63,50)) // arms by sides
+    },
+    { label:"Lift", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,50,62) +
+        line(50,62,42,48,true) + line(42,48,38,36,true) + // hips lifted
+        line(82,62,82,56) +
+        line(70,62,72,54) + line(60,62,62,54))
+    }
+  ],
+  "Crunch Circles": [
+    { label:"Up", d: svg(100,70, floor(62) + head(50,10) +
+        line(50,18,50,42) +
+        line(50,42,35,55) + line(35,55,20,62) +
+        line(50,42,65,55) + line(65,55,80,62) +
+        line(50,18,38,24) + line(50,18,62,24) + // arms crossed on chest
+        line(38,24,62,24))
+    },
+    { label:"Circle", d: svg(100,70, floor(62) + head(50,12) +
+        line(50,20,48,44) +
+        line(48,44,33,56) + line(33,56,18,62) +
+        line(48,44,63,56) + line(63,56,78,62) +
+        line(50,20,36,26,true) + line(50,20,64,26,true) +
+        `<path d="M 38 24 Q 50 18 62 24" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="3,2"/>`)
+    }
+  ],
+  "Toe Taps": [
+    { label:"Start", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,50,62) +
+        line(82,62,82,56) +
+        line(50,62,38,52) + line(38,52,30,62) + // left knee 90
+        line(50,62,62,52) + line(62,52,70,62) + // right knee 90
+        line(70,62,72,54) + line(60,62,62,54)) // arms flat
+    },
+    { label:"Tap", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,50,62) +
+        line(82,62,82,56) +
+        line(50,62,38,52) + line(38,52,34,62,true) + // left foot taps floor
+        line(50,62,62,52) + line(62,52,70,48) + // right knee stays up
+        line(70,62,72,54) + line(60,62,62,54))
+    }
+  ],
+  "Leg Raises": [
+    { label:"Start", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,20,62) + // body flat
+        line(82,62,82,56) +
+        line(30,62,30,55) + line(22,62,22,56) + // arms by sides
+        line(20,62,10,62))
+    },
+    { label:"Raise", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,50,62) +
+        line(82,62,82,56) +
+        line(30,62,30,56) + line(22,62,22,56) +
+        line(50,62,35,38,true) + line(35,38,20,18,true)) // legs raised
+    }
+  ],
+  "Oblique Crunch Right": [
+    { label:"Setup", d: svg(100,70, floor(62) + head(55,12) +
+        line(55,20,50,42) +
+        line(50,42,62,55) + line(62,55,72,62) + // right knee up
+        line(50,42,38,55) + line(38,55,25,62) + // left knee down
+        line(55,20,42,28) + line(42,28,34,24) + // left hand on oblique
+        line(55,20,66,28) + line(66,28,74,24)) // right hand temple
+    },
+    { label:"Crunch", d: svg(100,70, floor(62) + head(48,16) +
+        line(48,24,50,44) +
+        line(50,44,62,55) + line(62,55,72,62) +
+        line(50,44,38,55) + line(38,55,25,62) +
+        line(48,24,38,30) + line(38,30,30,28) +
+        line(48,24,60,28,true) + line(60,28,68,36,true)) // elbow toward hip
+    }
+  ],
+  "Oblique Crunch Left": [
+    { label:"Setup", d: svg(100,70, floor(62) + head(45,12) +
+        line(45,20,50,42) +
+        line(50,42,38,55) + line(38,55,28,62) + // left knee up
+        line(50,42,62,55) + line(62,55,75,62) +
+        line(45,20,58,28) + line(58,28,66,24) +
+        line(45,20,34,28) + line(34,28,26,24))
+    },
+    { label:"Crunch", d: svg(100,70, floor(62) + head(52,16) +
+        line(52,24,50,44) +
+        line(50,44,38,55) + line(38,55,28,62) +
+        line(50,44,62,55) + line(62,55,75,62) +
+        line(52,24,62,30) + line(62,30,70,28) +
+        line(52,24,40,28,true) + line(40,28,32,36,true))
+    }
+  ],
+  "Hollow Hold": [
+    { label:"Setup", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,20,62) +
+        line(82,62,82,56) +
+        line(45,62,40,52) + line(35,62,32,54)) // arms crossed on chest
+    },
+    { label:"Hold", d: svg(100,70, floor(62) + head(75,46) +
+        line(75,54,55,54,true) + // slightly crunched
+        line(75,54,75,48) +
+        line(55,54,40,46,true) + line(40,46,22,38,true) + // legs lifted
+        line(62,50,56,44) + line(56,44,64,42)) // arms crossed on chest
+    }
+  ],
+  "Windscreen Wipers": [
+    { label:"Centre", d: svg(100,70, floor(62) + head(50,10) +
+        line(50,18,50,42) +
+        line(50,42,44,55) + line(44,55,40,48) + // knees 90
+        line(50,42,56,55) + line(56,55,60,48) +
+        line(50,18,28,22) + // arms flat out
+        line(50,18,72,22))
+    },
+    { label:"Wipe", d: svg(100,70, floor(62) + head(50,10) +
+        line(50,18,50,42) +
+        line(50,42,58,52,true) + line(58,52,68,56,true) + // legs drop right
+        line(50,42,42,54) + line(42,54,36,50) +
+        line(50,18,28,22) +
+        line(50,18,72,22))
+    }
+  ],
+  "Hip Flexor Compressions Right": [
+    { label:"Seated", d: svg(100,70, floor(62) + head(50,10) +
+        line(50,18,50,38) + // torso upright
+        line(50,38,65,52) + line(65,52,78,52) + // left leg straight
+        line(50,38,42,48) + line(42,48,38,58) + // right knee hugged
+        line(50,18,42,28) + line(42,28,40,38)) // hands on knee
+    },
+    { label:"Lift", d: svg(100,70, floor(62) + head(50,10) +
+        line(50,18,50,38) +
+        line(50,38,65,42,true) + line(65,42,78,36,true) + // straight leg lifts
+        line(50,38,42,48) + line(42,48,38,58) +
+        line(50,18,42,28) + line(42,28,40,38))
+    }
+  ],
+  "Hip Flexor Compressions Left": [
+    { label:"Seated", d: svg(100,70, floor(62) + head(50,10) +
+        line(50,18,50,38) +
+        line(50,38,35,52) + line(35,52,22,52) +
+        line(50,38,58,48) + line(58,48,62,58) +
+        line(50,18,58,28) + line(58,28,60,38))
+    },
+    { label:"Lift", d: svg(100,70, floor(62) + head(50,10) +
+        line(50,18,50,38) +
+        line(50,38,35,42,true) + line(35,42,22,36,true) +
+        line(50,38,58,48) + line(58,48,62,58) +
+        line(50,18,58,28) + line(58,28,60,38))
+    }
+  ],
+  "Glute Bridge Pulses": [
+    { label:"Start", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,50,62) + line(82,62,82,56) +
+        line(50,62,38,52) + line(38,52,28,62) + // knees bent
+        line(70,62,72,54) + line(60,62,62,54)) // arms by sides
+    },
+    { label:"Bridge", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,68,54,true) + line(68,54,50,44,true) + // hips up
+        line(50,44,38,56) + line(38,56,28,62) +
+        line(82,62,82,56) +
+        line(72,58,74,52) + line(62,58,64,52))
+    }
+  ],
+  "Side Lying Hip Raise Right": [
+    { label:"Down", d: svg(100,70, floor(62) + head(15,52) +
+        line(15,60,50,62) + // body on side
+        line(50,62,70,60) + line(70,60,85,62) + // top leg straight
+        line(50,62,65,62) + // bottom knee bent suggestion
+        line(15,60,15,54) + // neck
+        line(22,62,22,55)) // arm suggestion
+    },
+    { label:"Raise", d: svg(100,70, floor(62) + head(15,52) +
+        line(15,60,50,56,true) + // hips lifted
+        line(50,56,70,52,true) + line(70,52,85,54,true) +
+        line(50,62,65,62) +
+        line(15,60,15,54) +
+        line(22,62,22,56))
+    }
+  ],
+  "Side Lying Hip Raise Left": [
+    { label:"Down", d: svg(100,70, floor(62) + head(85,52) +
+        line(85,60,50,62) +
+        line(50,62,30,60) + line(30,60,15,62) +
+        line(50,62,35,62) +
+        line(85,60,85,54) +
+        line(78,62,78,55))
+    },
+    { label:"Raise", d: svg(100,70, floor(62) + head(85,52) +
+        line(85,60,50,56,true) +
+        line(50,56,30,52,true) + line(30,52,15,54,true) +
+        line(50,62,35,62) +
+        line(85,60,85,54) +
+        line(78,62,78,56))
+    }
+  ],
+  "V-Up Crunches": [
+    { label:"Start", d: svg(100,70, floor(62) + head(82,54) +
+        line(82,62,20,62) +
+        line(82,62,82,56) +
+        line(30,62,28,54) + line(22,62,20,54) + // arms by sides/temples
+        line(18,62,10,62))
+    },
+    { label:"Crunch", d: svg(100,70, floor(62) + head(70,42,7) +
+        line(70,49,55,55,true) + // torso up
+        line(55,55,40,52,true) + line(40,52,25,48,true) + // knees toward chest
+        line(70,49,70,44) +
+        line(62,46,54,42) + line(54,42,62,38)) // hands on temples
+    }
+  ]
+};
+
+const steps = {
+  "Bicycle Crunch": ["Lie flat, hands lightly on temples — don't pull your neck.","Lift both feet so knees are at 90°.","Rotate torso to bring right elbow toward left knee while extending right leg.","Switch sides in a smooth cycling motion — keep the rotation in the torso, not the neck.","Keep lower back pressed to the mat throughout."],
+  "Reverse Crunch": ["Lie flat, arms by your sides, palms down.","Bend knees to 90° with feet off the floor.","Use your abs to roll your knees toward your chest, lifting your hips off the mat.","Pause at the top, then slowly lower back down — don't let momentum do the work.","Stop before your feet touch the floor and repeat."],
+  "Crunch Circles": ["Lie flat, arms crossed over chest — hands on opposite shoulders.","Lift shoulders slightly off the mat to engage abs.","Draw a slow, large circle with your upper body — up, one side, back down, other side.","Do 20 seconds clockwise, then reverse direction for 20 seconds.","Keep lower back on the mat the whole time."],
+  "Toe Taps": ["Lie flat on your back, arms completely flat by your sides — palms down.","Raise both knees to 90° so shins are parallel to the floor.","Press your lower back firmly into the mat — this must stay flat throughout.","Slowly lower your right foot to tap the floor, then bring it back up.","Alternate feet in a controlled rhythm — the moment your lower back arches, shorten the range."],
+  "Leg Raises": ["Lie flat, arms by your sides, palms down for stability.","Press lower back into mat — eliminate any arch.","Keeping legs straight (soft knees ok), raise them until vertical.","Lower slowly as far as you can without the lower back arching off the mat.","Stop and raise again before the arch appears — shorten range if needed."],
+  "Oblique Crunch Right": ["Left knee down on mat, right knee pointing up toward ceiling.","Place left hand on your right obliques (side of abs), right hand on right temple.","Crunch your right elbow toward your right hip — short, sharp contractions.","Keep the movement on the right side only — don't rotate across the body.","You should feel the squeeze on the right side of your abs."],
+  "Oblique Crunch Left": ["Right knee down on mat, left knee pointing up toward ceiling.","Place right hand on your left obliques, left hand on left temple.","Crunch your left elbow toward your left hip.","Keep lower back relatively neutral — this is a side bend not a forward crunch.","Focus on feeling the left obliques contract each rep."],
+  "Hollow Hold": ["Lie flat, arms crossed on chest — hands on opposite shoulders.","Press lower back firmly into the floor.","Lift both legs off the floor — start with knees bent if needed.","Hold the position with lower back glued to the mat.","If your back starts to arch, bend knees slightly to reduce the lever arm."],
+  "Windscreen Wipers": ["Lie flat, arms out to sides on the floor for stability — no pressing or loading.","Raise knees to 90° above your hips.","Slowly lower both legs together to the right — stop before your lower back lifts.","Bring legs back to centre then lower to the left.","Pin the opposite shoulder to the floor as legs drop — rotate from the obliques."],
+  "Hip Flexor Compressions Right": ["Sit upright on the floor, left leg straight out in front.","Hug your right knee into your chest with both hands.","Keeping your torso tall, slowly raise your straight left leg off the floor.","Hold for 2–3 counts, feeling compression between chest and hip.","Lower and repeat — resist the urge to lean back as you lift."],
+  "Hip Flexor Compressions Left": ["Sit upright, right leg straight out in front.","Hug your left knee into your chest.","Raise your straight right leg off the floor.","Hold 2–3 counts — stay upright, don't rock backwards.","This is harder than it looks — control is everything here."],
+  "Glute Bridge Pulses": ["Lie flat on back, feet flat on floor hip-width apart, arms by sides.","Drive hips up by squeezing your glutes hard.","At the top, do small controlled pulses — just a few centimetres up and down.","Keep hips high throughout — don't drop between pulses.","Squeeze the glutes on every pulse rather than just bouncing."],
+  "Side Lying Hip Raise Right": ["Lie on your right side — bottom knee can be slightly bent for balance.","Top leg straight, body in a straight line from head to foot.","Drive your hips up off the floor using your obliques and glute med.","Don't prop or load through your shoulder — use your hip as the base.","Hold 1 second at the top, lower with control."],
+  "Side Lying Hip Raise Left": ["Lie on your left side, bottom knee slightly bent.","Top leg straight, stack your hips directly on top of each other.","Drive hips up — focus on the left oblique and left glute med.","Keep your hips facing forward — don't let them rotate toward the ceiling.","1 second hold at the top, controlled descent."],
+  "V-Up Crunches": ["Lie flat, knees slightly bent, hands on temples.","In one movement, crunch your upper body up while drawing knees toward chest.","Meet in the middle — elbows and knees as close as comfortable.","Lower slowly — don't just drop back down.","For more range, alternate legs: crunch up while one leg extends and the other bends."]
+};
+
+const exercises = [
+  { name:"Bicycle Crunch",              note:"Hands on temples, elbows wide. Opposite elbow to opposite knee, big torso rotation. Keep lower back on mat.",                     focus:"Rectus abdominis · Obliques" },
+  { name:"Reverse Crunch",              note:"Hands flat by sides. Roll knees toward chest lifting hips off the mat. Lower slowly — no momentum.",                              focus:"Lower rectus abdominis" },
+  { name:"Crunch Circles",              note:"Arms crossed on chest. Big slow circles — 20 seconds each direction. Open abs on the way down.",                                  focus:"Rectus abdominis · Obliques" },
+  { name:"Toe Taps",                    note:"Lie flat, knees at 90° raised above hips, arms flat by sides. Alternate tapping each foot to the floor. Press lower back flat the whole time.",                 focus:"Transverse abdominis · Lower abs" },
+  { name:"Leg Raises",                  note:"Hands flat by sides. Raise both legs to vertical, lower as far as you can without arching the lower back.",                       focus:"Lower abs · Hip flexors" },
+  { name:"Oblique Crunch Right",        note:"Left knee down, right knee up. Right hand on temple, left on obliques. Crunch right elbow toward right hip.",                     focus:"Right obliques" },
+  { name:"Oblique Crunch Left",         note:"Right knee down, left knee up. Left hand on temple, right on obliques. Crunch left elbow toward left hip.",                       focus:"Left obliques" },
+  { name:"Hollow Hold",                 note:"Arms crossed on chest, legs lifted. Press lower back flat to floor and hold. Bend knees if the arch appears.",                    focus:"Deep core · Transverse abdominis" },
+  { name:"Windscreen Wipers",           note:"Arms flat out for stability only. Knees at 90°. Drop legs side to side. Pin opposite shoulder to floor.",                         focus:"Obliques · Rotational core" },
+  { name:"Hip Flexor Compressions Right",note:"Seated upright, left leg straight. Hug right knee in, lift left leg and hold 2–3 counts. Stay tall.",                           focus:"Hip flexors · Lower abs" },
+  { name:"Hip Flexor Compressions Left", note:"Switch sides. Hug left knee, lift right leg and hold 2–3 counts. Don't lean back.",                                             focus:"Hip flexors · Lower abs" },
+  { name:"Glute Bridge Pulses",         note:"Feet flat, arms by sides. Drive hips up, squeeze glutes. Small pulses at the top — don't drop between reps.",                    focus:"Glutes · Posterior chain" },
+  { name:"Side Lying Hip Raise Right",  note:"Lie on right side, bottom knee slightly bent. Drive hips up using obliques and glute med. Don't load through shoulder.",          focus:"Right obliques · Glute med" },
+  { name:"Side Lying Hip Raise Left",   note:"Switch to left side. Drive hips up, keep hips stacked and facing forward. 1 second hold at top.",                                focus:"Left obliques · Glute med" },
+  { name:"V-Up Crunches",              note:"Knees slightly bent, hands on temples. Crunch up toward knees and lower slowly. Alternate legs for more range.",                  focus:"Full rectus abdominis" }
+];
+
+const WORK=40, REST=20, CIRC=565.5;
+let current=0, timeLeft=WORK, isWork=true, running=false, interval=null, audioCtx=null, howToOpen=false;
+
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function beep(f,d,t='sine',v=0.4){try{const c=getAudio(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t;o.frequency.setValueAtTime(f,c.currentTime);g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);o.start(c.currentTime);o.stop(c.currentTime+d);}catch(e){}}
+function buzz(){beep(80,0.15,'square',0.5);setTimeout(()=>beep(80,0.15,'square',0.5),180);}
+function countdownBeep(){beep(880,0.1,'sine',0.3);}
+function speak(t){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=0.95;u.pitch=1;u.volume=1;window.speechSynthesis.speak(u);}
+
+function renderHowTo(idx) {
+  const ex = exercises[idx];
+  const diag = diagrams[ex.name] || [];
+  const stps = steps[ex.name] || [];
+  const dw = document.getElementById('diagramWrap');
+  const sl = document.getElementById('stepsList');
+  dw.innerHTML = diag.map(d=>`<div class="diagram-frame">${d.d}<div class="diagram-label">${d.label}</div></div>`).join('');
+  sl.innerHTML = stps.map((s,i)=>`<li data-n="${i+1}">${s}</li>`).join('');
+}
+
+function toggleHowTo() {
+  howToOpen = !howToOpen;
+  const panel = document.getElementById('howToPanel');
+  const btn = document.getElementById('howToBtn');
+  if (howToOpen) {
+    renderHowTo(current);
+    panel.classList.add('open');
+    btn.textContent = '▴ Hide';
+  } else {
+    panel.classList.remove('open');
+    btn.textContent = '▾ How to do this';
+  }
+}
+
+function updateDisplay() {
+  const ex = exercises[current];
+  document.getElementById('timerDisplay').textContent = timeLeft;
+  document.getElementById('exNumber').textContent = `Exercise ${current+1} of ${exercises.length}`;
+  document.getElementById('exName').textContent = ex.name;
+  document.getElementById('exNote').textContent = ex.note;
+  document.getElementById('exFocus').textContent = ex.focus;
+  const next = exercises[current+1];
+  document.getElementById('nextName').textContent = next ? next.name : 'Done!';
+  document.getElementById('phaseLabel').textContent = isWork ? 'WORK' : 'REST';
+  const wrap = document.getElementById('ringWrap');
+  const cd = timeLeft<=3 && timeLeft>0;
+  wrap.className = 'timer-ring '+(isWork?'work-phase':'rest-phase')+(cd?' countdown':'');
+  document.getElementById('ringProgress').style.strokeDashoffset = CIRC*(1-timeLeft/(isWork?WORK:REST));
+  document.getElementById('progressFill').style.width=(current/exercises.length*100)+'%';
+  document.getElementById('progressLabel').textContent=`${current} of ${exercises.length} complete`;
+  if (howToOpen) renderHowTo(current);
+}
+
+function tick() {
+  timeLeft--;
+  if(timeLeft<=3&&timeLeft>0) countdownBeep();
+  if(timeLeft<0){
+    buzz();
+    if(isWork){
+      if(current===exercises.length-1){
+        clearInterval(interval);running=false;
+        speak('Circuit complete. Great work.');
+        document.getElementById('progressFill').style.width='100%';
+        document.getElementById('progressLabel').textContent=`${exercises.length} of ${exercises.length} complete`;
+        setTimeout(()=>{document.getElementById('main').style.display='none';document.getElementById('completeScreen').style.display='block';},400);
+        return;
+      }
+      isWork=false;timeLeft=REST;
+      const nx=exercises[current+1];
+      if(nx) speak('Rest. Next up — '+nx.name);
+    } else {
+      isWork=true;current++;timeLeft=WORK;
+      speak(exercises[current].name+'. Go.');
+    }
+  }
+  updateDisplay();
+}
+
+function toggleTimer(){
+  if(running){
+    clearInterval(interval);running=false;
+    window.speechSynthesis&&window.speechSynthesis.cancel();
+    document.getElementById('mainBtn').textContent='Resume';
+  } else {
+    try{getAudio();}catch(e){}
+    running=true;
+    document.getElementById('mainBtn').textContent='Pause';
+    speak('Starting. '+exercises[current].name);
+    interval=setInterval(tick,1000);
+  }
+}
+
+function resetTimer(){
+  clearInterval(interval);running=false;current=0;timeLeft=WORK;isWork=true;
+  document.getElementById('mainBtn').textContent='Start';
+  howToOpen=false;
+  document.getElementById('howToPanel').classList.remove('open');
+  document.getElementById('howToBtn').textContent='▾ How to do this';
+  updateDisplay();
+}
+
+function resetAll(){
+  document.getElementById('completeScreen').style.display='none';
+  document.getElementById('main').style.display='block';
+  resetTimer();
+}
+
+updateDisplay();
+</script>
+</body>
+</html>

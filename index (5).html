@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Core & Stretch Circuits</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f14; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; }
+.app { width: 100%; max-width: 480px; }
+
+/* ── Menu ── */
+.menu-screen { padding: 10px 0 20px; }
+.menu-title { text-align: center; margin-bottom: 6px; }
+.menu-title h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.menu-title p { font-size: 13px; color: #555; margin-top: 4px; }
+.routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+.routine-card { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 16px; padding: 18px 14px; cursor: pointer; transition: all 0.15s; text-align: left; }
+.routine-card:hover { background: #22222e; border-color: #3a3a50; transform: translateY(-1px); }
+.routine-card:active { transform: scale(0.97); }
+.rc-icon { font-size: 26px; margin-bottom: 10px; }
+.rc-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; line-height: 1.3; }
+.rc-sub { font-size: 11px; color: #555; line-height: 1.4; }
+.rc-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 999px; margin-top: 8px; }
+
+/* ── Timer screen ── */
+.timer-screen { display: none; }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: #555; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0 0 16px; }
+.back-btn:hover { color: #aaa; }
+.header { text-align: center; margin-bottom: 16px; }
+.header h1 { font-size: 17px; font-weight: 600; color: #fff; }
+.header p { font-size: 12px; color: #555; margin-top: 3px; }
+.timer-ring { position: relative; width: 190px; height: 190px; margin: 0 auto 18px; }
+.timer-ring svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: #1e1e2a; stroke-width: 10; }
+.ring-progress { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
+.timer-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+.timer-seconds { font-size: 56px; font-weight: 700; letter-spacing: -3px; line-height: 1; }
+.timer-phase { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+.exercise-card { background: #1a1a24; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid #2a2a38; }
+.ex-number { font-size: 11px; font-weight: 600; color: #555; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+.ex-name { font-size: 19px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 6px; }
+.ex-note { font-size: 13px; color: #888; line-height: 1.5; }
+.ex-focus { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; margin-top: 6px; }
+.how-to-btn { display: block; width: 100%; margin-top: 10px; padding: 8px; background: #13131c; border: 1px solid #2a2a38; border-radius: 10px; color: #666; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; }
+.how-to-btn:hover { background: #1e1e2a; color: #aaa; }
+.how-to-panel { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #2a2a38; }
+.how-to-panel.open { display: block; }
+.diagram-wrap { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+.diagram-frame { background: #13131c; border-radius: 10px; padding: 8px; flex: 1; text-align: center; border: 1px solid #222230; }
+.diagram-label { font-size: 10px; color: #444; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.steps { list-style: none; }
+.steps li { font-size: 12px; color: #888; line-height: 1.6; padding: 4px 0 4px 20px; position: relative; border-bottom: 1px solid #1e1e2a; }
+.steps li:last-child { border-bottom: none; }
+.steps li::before { content: attr(data-n); position: absolute; left: 0; color: #4f46e5; font-weight: 700; font-size: 11px; top: 5px; }
+.next-up { background: #13131c; border-radius: 12px; padding: 11px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.next-label { font-size: 11px; color: #444; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.next-name { font-size: 13px; color: #666; font-weight: 500; }
+.controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 14px; }
+.btn { border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; padding: 13px 22px; }
+.btn-primary { background: #4f46e5; color: #fff; flex: 1; }
+.btn-primary:hover { background: #4338ca; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-secondary { background: #1e1e2a; color: #888; }
+.btn-secondary:hover { background: #252533; color: #aaa; }
+.progress-bar { background: #1a1a24; border-radius: 8px; height: 5px; margin-bottom: 6px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 8px; transition: width 0.3s; }
+.progress-label { font-size: 12px; color: #444; text-align: center; }
+.complete { text-align: center; padding: 40px 20px; display: none; }
+.complete h2 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.complete p { color: #666; font-size: 14px; }
+
+/* phase colours */
+.work-phase .ring-progress { stroke: #4f46e5; }
+.rest-phase .ring-progress { stroke: #22c55e; }
+.stretch-work .ring-progress { stroke: #f59e0b; }
+.stretch-rest .ring-progress { stroke: #22c55e; }
+.rest-phase .timer-phase, .stretch-rest .timer-phase { color: #22c55e; }
+.work-phase .timer-phase { color: #818cf8; }
+.stretch-work .timer-phase { color: #f59e0b; }
+.countdown .timer-seconds { color: #ef4444; }
+.countdown .ring-progress { stroke: #ef4444 !important; }
+@keyframes pulse { 0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.08);} }
+.countdown .timer-center { animation: pulse 0.5s ease-in-out infinite; }
+
+/* focus badge colours per routine type */
+.badge-core { color: #818cf8; background: rgba(129,140,248,0.12); }
+.badge-stretch { color: #f59e0b; background: rgba(245,158,11,0.12); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- MENU -->
+  <div class="menu-screen" id="menuScreen">
+    <div class="menu-title">
+      <h1>Core & Stretch</h1>
+      <p>Select a routine to begin</p>
+    </div>
+    <div class="routine-grid">
+      <div class="routine-card" onclick="startRoutine(0)">
+        <div class="rc-icon">💪</div>
+        <div class="rc-title">Full Core</div>
+        <div class="rc-sub">No restrictions — all exercises</div>
+        <div class="rc-badge badge-core">15 ex · 40/20</div>
+      </div>
+      <div class="routine-card" onclick="startRoutine(1)">
+        <div class="rc-icon">🩹</div>
+        <div class="rc-title">Shoulder Safe Core</div>
+        <div class="rc-sub">Zero shoulder load or arm elevation</div>
+        <div class="rc-badge badge-core">15 ex · 40/20</div>
+      </div>
+      <div class="routine-card" onclick="startRoutine(2)">
+        <div class="rc-icon">🧘</div>
+        <div class="rc-title">General Stretch</div>
+        <div class="rc-sub">Full body mobility routine</div>
+        <div class="rc-badge badge-stretch">15 ex · 45/15</div>
+      </div>
+      <div class="routine-card" onclick="startRoutine(3)">
+        <div class="rc-icon">🔧</div>
+        <div class="rc-title">Hip Flexor & Back</div>
+        <div class="rc-sub">Targeted lower body and spine</div>
+        <div class="rc-badge badge-stretch">15 ex · 45/15</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="timer-screen" id="timerScreen">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <div class="header">
+      <h1 id="routineTitle">Full Core</h1>
+      <p id="routineSub">15 exercises · 40s on · 20s off</p>
+    </div>
+
+    <div class="timer-ring work-phase" id="ringWrap">
+      <svg width="190" height="190" viewBox="0 0 190 190">
+        <circle class="ring-bg" cx="95" cy="95" r="85"/>
+        <circle class="ring-progress" id="ringProgress" cx="95" cy="95" r="85" stroke-dasharray="534" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-seconds" id="timerDisplay">40</div>
+        <div class="timer-phase" id="phaseLabel">WORK</div>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="ex-number" id="exNumber">Exercise 1 of 15</div>
+      <div class="ex-name" id="exName"></div>
+      <div class="ex-note" id="exNote"></div>
+      <div class="ex-focus" id="exFocus"></div>
+      <button class="how-to-btn" id="howToBtn" onclick="toggleHowTo()">▾ How to do this</button>
+      <div class="how-to-panel" id="howToPanel">
+        <div class="diagram-wrap" id="diagramWrap"></div>
+        <ul class="steps" id="stepsList"></ul>
+      </div>
+    </div>
+
+    <div class="next-up">
+      <span class="next-label">Next</span>
+      <span class="next-name" id="nextName"></span>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="mainBtn" onclick="toggleTimer()">Start</button>
+      <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">0 of 15 complete</div>
+
+    <div class="complete" id="completeScreen">
+      <div style="font-size:44px;margin-bottom:14px;" id="completeIcon">💪</div>
+      <h2>Done!</h2>
+      <p id="completeMsg">Circuit complete. Great work.</p>
+      <br>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="resetTimer()">Go Again</button>
+      <button class="btn btn-secondary" style="width:100%;" onclick="goBack()">Choose Routine</button>
+    </div>
+  </div>
+
+</div>
+<script>
+// ── SVG helpers ───────────────────────────────────────────────────────────────
+const C = 534; // circumference for r=85
+function svg(w,h,c){return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${c}</svg>`;}
+const Sb='stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" fill="none"';
+const Sh='stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" fill="none"'; // highlight
+const Sf='stroke="#2a2a38" stroke-width="1.5" fill="none"';
+function hd(cx,cy,r=8){return `<circle cx="${cx}" cy="${cy}" r="${r}" stroke="#818cf8" stroke-width="2" fill="#1a1a24"/>`;}
+function ln(x1,y1,x2,y2,hi=false){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${hi?Sh:Sb}/>`;}
+function fl(y,x1=5,x2=95){return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" ${Sf}/>`;}
+
+// ── Exercise data ─────────────────────────────────────────────────────────────
+const EXDB = {
+  // ── CORE ──
+  "Bicycle Crunch": {
+    note:"Hands on temples, elbows wide. Opposite elbow to opposite knee, big torso rotation. Keep lower back on mat.", focus:"Rectus abdominis · Obliques",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(50,12)+ln(50,20,50,40)+ln(50,40,35,55)+ln(35,55,20,62)+ln(50,40,65,55)+ln(65,55,80,48)+ln(50,20,30,30)+ln(30,30,18,26)+ln(50,20,70,30)+ln(70,30,82,26))},
+      {label:"Crunch", d:svg(100,70,fl(62)+hd(38,18)+ln(38,26,52,42)+ln(52,42,40,56)+ln(40,56,28,62)+ln(52,42,68,50)+ln(68,50,80,44,true)+ln(38,26,24,32)+ln(24,32,16,28)+ln(38,26,54,30)+ln(54,30,62,22,true))}
+    ],
+    steps:["Lie flat, hands lightly on temples — don't pull neck.","Lift feet so knees are at 90°.","Rotate torso bringing right elbow toward left knee while extending right leg.","Switch sides in a smooth cycling motion — rotate from torso not neck.","Keep lower back pressed to the mat throughout."]
+  },
+  "Heel Touches": {
+    note:"Lie on back, knees bent, feet flat. Reach each hand alternately down toward the same-side heel. Arms stay low the entire time.", focus:"Obliques · Lateral core",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,40)+ln(50,40,38,54)+ln(38,54,30,62)+ln(50,40,62,54)+ln(62,54,70,62)+ln(50,18,36,28)+ln(50,18,64,28))},
+      {label:"Reach", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,48,40)+ln(48,40,36,54)+ln(36,54,28,62)+ln(48,40,60,54)+ln(60,54,68,62)+ln(50,18,38,26)+ln(38,26,30,34,true)+ln(50,18,62,28))}
+    ],
+    steps:["Lie flat, knees bent, feet flat on floor hip-width apart.","Arms flat by your sides, palms facing down.","Crunch slightly and reach your right hand down to touch your right heel.","Return to centre, then reach your left hand to your left heel.","Keep the movement lateral — don't rotate across the body."]
+  },
+  "Reverse Crunch": {
+    note:"Hands flat by sides. Roll knees toward chest lifting hips off the mat. Lower slowly — no momentum.", focus:"Lower rectus abdominis",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(50,62,35,52)+ln(35,52,20,55)+ln(82,62,82,56)+ln(70,62,75,50)+ln(60,62,63,50))},
+      {label:"Lift", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(50,62,42,48,true)+ln(42,48,38,36,true)+ln(82,62,82,56)+ln(70,62,72,54)+ln(60,62,62,54))}
+    ],
+    steps:["Lie flat, arms by sides, palms down.","Bend knees to 90° with feet off floor.","Use abs to roll knees toward chest, lifting hips off mat.","Pause at top, then slowly lower back down.","Stop before feet touch floor and repeat."]
+  },
+  "Crunch Circles": {
+    note:"Arms crossed on chest. Big slow circles — 20 seconds each direction. Open abs on the way down.", focus:"Rectus abdominis · Obliques",
+    diag:[
+      {label:"Up", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,42)+ln(50,42,35,55)+ln(35,55,20,62)+ln(50,42,65,55)+ln(65,55,80,62)+ln(50,18,38,24)+ln(50,18,62,24)+ln(38,24,62,24))},
+      {label:"Circle", d:svg(100,70,fl(62)+hd(50,12)+ln(50,20,48,44)+ln(48,44,33,56)+ln(33,56,18,62)+ln(48,44,63,56)+ln(63,56,78,62)+ln(50,20,36,26,true)+ln(50,20,64,26,true)+`<path d="M 38 24 Q 50 18 62 24" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="3,2"/>`)}
+    ],
+    steps:["Lie flat, arms crossed over chest, hands on opposite shoulders.","Lift shoulders slightly off mat to engage abs.","Draw a slow large circle — up, one side, back down, other side.","Do 20 seconds clockwise then reverse for 20 seconds.","Keep lower back on the mat the whole time."]
+  },
+  "Dead Bug": {
+    note:"Knees at 90°, arms pointing straight up to ceiling. Drop opposite arm and leg toward floor. Press lower back flat the whole time.", focus:"Transverse abdominis · Hip flexors",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,42)+ln(50,42,38,55)+ln(38,55,28,48)+ln(50,42,62,55)+ln(62,55,72,48)+ln(50,18,32,28)+ln(32,28,22,22)+ln(50,18,68,28)+ln(68,28,78,22))},
+      {label:"Extend", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,42)+ln(50,42,38,52)+ln(38,52,25,62,true)+ln(50,42,62,52)+ln(62,52,70,44)+ln(50,18,34,26)+ln(34,26,18,32,true)+ln(50,18,66,28)+ln(66,28,76,22))}
+    ],
+    steps:["Lie flat, knees at 90° raised above hips, arms pointing straight up.","Press lower back firmly into floor — maintain this throughout.","Slowly lower right arm and left leg toward floor simultaneously.","Stop before either touches, return to start. Switch sides.","Move slowly — 3–4 seconds each direction."]
+  },
+  "Toe Taps": {
+    note:"Lie flat, knees at 90° raised above hips, arms flat by sides. Alternate tapping each foot to the floor. Press lower back flat the whole time.", focus:"Transverse abdominis · Lower abs",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,38,52)+ln(38,52,30,62)+ln(50,62,62,52)+ln(62,52,70,62)+ln(70,62,72,54)+ln(60,62,62,54))},
+      {label:"Tap", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,38,52)+ln(38,52,34,62,true)+ln(50,62,62,52)+ln(62,52,70,48)+ln(70,62,72,54)+ln(60,62,62,54))}
+    ],
+    steps:["Lie flat on back, arms completely flat by sides — palms down.","Raise both knees to 90° so shins are parallel to the floor.","Press lower back firmly into the mat — must stay flat throughout.","Slowly lower right foot to tap the floor, then bring it back up.","Alternate feet in a controlled rhythm — shorten range if back arches."]
+  },
+  "Leg Raises": {
+    note:"Hands flat by sides. Raise both legs to vertical, lower as far as you can without arching the lower back.", focus:"Lower abs · Hip flexors",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56)+ln(30,62,30,55)+ln(22,62,22,56))},
+      {label:"Raise", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(30,62,30,56)+ln(22,62,22,56)+ln(50,62,35,38,true)+ln(35,38,20,18,true))}
+    ],
+    steps:["Lie flat, arms by sides, palms down.","Press lower back into mat — eliminate any arch.","Keeping legs straight, raise them until vertical.","Lower slowly as far as you can without lower back arching.","Shorten range if needed — quality over depth."]
+  },
+  "Oblique Crunch Right": {
+    note:"Left knee down, right knee up. Right hand on temple, left on obliques. Crunch right elbow toward right hip.", focus:"Right obliques",
+    diag:[
+      {label:"Setup", d:svg(100,70,fl(62)+hd(55,12)+ln(55,20,50,42)+ln(50,42,62,55)+ln(62,55,72,62)+ln(50,42,38,55)+ln(38,55,25,62)+ln(55,20,42,28)+ln(42,28,34,24)+ln(55,20,66,28)+ln(66,28,74,24))},
+      {label:"Crunch", d:svg(100,70,fl(62)+hd(48,16)+ln(48,24,50,44)+ln(50,44,62,55)+ln(62,55,72,62)+ln(50,44,38,55)+ln(38,55,25,62)+ln(48,24,38,30)+ln(38,30,30,28)+ln(48,24,60,28,true)+ln(60,28,68,36,true))}
+    ],
+    steps:["Left knee down on mat, right knee pointing up toward ceiling.","Left hand on right obliques, right hand on right temple.","Crunch right elbow toward right hip — short sharp contractions.","Keep movement on right side only — don't rotate across body.","Feel the squeeze on right side of abs each rep."]
+  },
+  "Oblique Crunch Left": {
+    note:"Right knee down, left knee up. Left hand on temple, right on obliques. Crunch left elbow toward left hip.", focus:"Left obliques",
+    diag:[
+      {label:"Setup", d:svg(100,70,fl(62)+hd(45,12)+ln(45,20,50,42)+ln(50,42,38,55)+ln(38,55,28,62)+ln(50,42,62,55)+ln(62,55,75,62)+ln(45,20,58,28)+ln(58,28,66,24)+ln(45,20,34,28)+ln(34,28,26,24))},
+      {label:"Crunch", d:svg(100,70,fl(62)+hd(52,16)+ln(52,24,50,44)+ln(50,44,38,55)+ln(38,55,28,62)+ln(50,44,62,55)+ln(62,55,75,62)+ln(52,24,62,30)+ln(62,30,70,28)+ln(52,24,40,28,true)+ln(40,28,32,36,true))}
+    ],
+    steps:["Right knee down on mat, left knee pointing up.","Right hand on left obliques, left hand on left temple.","Crunch left elbow toward left hip.","Keep lower back relatively neutral — side bend not forward crunch.","Focus on feeling left obliques contract each rep."]
+  },
+  "Hollow Hold": {
+    note:"Arms crossed on chest, legs lifted. Press lower back flat to floor and hold. Bend knees if the arch appears.", focus:"Deep core · Transverse abdominis",
+    diag:[
+      {label:"Setup", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56)+ln(45,62,40,52)+ln(35,62,32,54))},
+      {label:"Hold", d:svg(100,70,fl(62)+hd(75,46)+ln(75,54,55,54,true)+ln(75,54,75,48)+ln(55,54,40,46,true)+ln(40,46,22,38,true)+ln(62,50,56,44)+ln(56,44,64,42))}
+    ],
+    steps:["Lie flat, arms crossed on chest — hands on opposite shoulders.","Press lower back firmly into floor.","Lift both legs off floor — bent knees to start if needed.","Hold with lower back glued to mat.","If back arches, bend knees more to reduce lever arm."]
+  },
+  "Side Plank Right": {
+    note:"On right forearm, feet stacked. Keep body in a straight line, don't sink into shoulder. Hold for 40 seconds.", focus:"Right obliques · Transverse abdominis",
+    diag:[
+      {label:"Side Plank", d:svg(100,70,fl(62)+hd(15,46)+ln(15,54,50,62)+ln(50,62,80,56)+ln(15,54,15,48)+`<line x1="5" y1="62" x2="85" y2="62" stroke="#2a2a38" stroke-width="1.5" fill="none"/>`)},
+      {label:"Mod: Knee", d:svg(100,70,fl(62)+hd(15,46)+ln(15,54,40,62)+ln(40,62,55,56)+ln(55,56,75,52)+ln(15,54,15,48))}
+    ],
+    steps:["Lie on right side, forearm on floor directly under shoulder.","Stack feet or stagger for balance — top foot in front.","Lift hips off floor, forming a straight line from head to feet.","Don't sink into shoulder — actively push through forearm.","Modification: drop bottom knee to floor to reduce load."]
+  },
+  "Side Plank Left": {
+    note:"On left forearm, feet stacked. Keep body in a straight line, don't sink into shoulder. Hold for 40 seconds.", focus:"Left obliques · Transverse abdominis",
+    diag:[
+      {label:"Side Plank", d:svg(100,70,fl(62)+hd(85,46)+ln(85,54,50,62)+ln(50,62,20,56)+ln(85,54,85,48)+`<line x1="5" y1="62" x2="95" y2="62" stroke="#2a2a38" stroke-width="1.5" fill="none"/>`)},
+      {label:"Mod: Knee", d:svg(100,70,fl(62)+hd(85,46)+ln(85,54,60,62)+ln(60,62,45,56)+ln(45,56,25,52)+ln(85,54,85,48))}
+    ],
+    steps:["Lie on left side, left forearm on floor under shoulder.","Stack feet or stagger front foot for balance.","Lift hips forming a straight line from head to feet.","Push through forearm actively — don't collapse into shoulder.","Modification: drop bottom knee to reduce difficulty."]
+  },
+  "Windscreen Wipers": {
+    note:"Arms flat by sides for stability only. Knees at 90°. Drop legs side to side. Pin opposite shoulder to floor.", focus:"Obliques · Rotational core",
+    diag:[
+      {label:"Centre", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,42)+ln(50,42,44,55)+ln(44,55,40,48)+ln(50,42,56,55)+ln(56,55,60,48)+ln(50,18,28,22)+ln(50,18,72,22))},
+      {label:"Wipe", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,42)+ln(50,42,58,52,true)+ln(58,52,68,56,true)+ln(50,42,42,54)+ln(42,54,36,50)+ln(50,18,28,22)+ln(50,18,72,22))}
+    ],
+    steps:["Lie flat, arms out to sides on floor for stability — no pressing.","Raise knees to 90° above hips.","Slowly lower both legs together to right — stop before lower back lifts.","Bring back to centre then lower to left.","Pin opposite shoulder to floor as legs drop."]
+  },
+  "Hip Flexor Compressions Right": {
+    note:"Seated upright, left leg straight. Hug right knee in, lift left leg and hold 2–3 counts. Stay tall.", focus:"Hip flexors · Lower abs",
+    diag:[
+      {label:"Seated", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,38)+ln(50,38,65,52)+ln(65,52,78,52)+ln(50,38,42,48)+ln(42,48,38,58)+ln(50,18,42,28)+ln(42,28,40,38))},
+      {label:"Lift", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,38)+ln(50,38,65,42,true)+ln(65,42,78,36,true)+ln(50,38,42,48)+ln(42,48,38,58)+ln(50,18,42,28)+ln(42,28,40,38))}
+    ],
+    steps:["Sit upright on floor, left leg straight out in front.","Hug right knee into chest with both hands.","Keeping torso tall, slowly raise straight left leg off floor.","Hold 2–3 counts, feel compression between chest and hip.","Lower and repeat — resist urge to lean back as you lift."]
+  },
+  "Hip Flexor Compressions Left": {
+    note:"Switch sides. Hug left knee, lift right leg and hold 2–3 counts. Don't lean back.", focus:"Hip flexors · Lower abs",
+    diag:[
+      {label:"Seated", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,38)+ln(50,38,35,52)+ln(35,52,22,52)+ln(50,38,58,48)+ln(58,48,62,58)+ln(50,18,58,28)+ln(58,28,60,38))},
+      {label:"Lift", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,38)+ln(50,38,35,42,true)+ln(35,42,22,36,true)+ln(50,38,58,48)+ln(58,48,62,58)+ln(50,18,58,28)+ln(58,28,60,38))}
+    ],
+    steps:["Sit upright, right leg straight out in front.","Hug left knee into chest.","Raise straight right leg off floor.","Hold 2–3 counts — stay upright, don't rock backwards.","Control is everything — slow and deliberate."]
+  },
+  "Glute Bridge Pulses": {
+    note:"Feet flat, arms by sides. Drive hips up, squeeze glutes. Small pulses at the top — don't drop between reps.", focus:"Glutes · Posterior chain",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,38,52)+ln(38,52,28,62)+ln(70,62,72,54)+ln(60,62,62,54))},
+      {label:"Bridge", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,68,54,true)+ln(68,54,50,44,true)+ln(50,44,38,56)+ln(38,56,28,62)+ln(82,62,82,56)+ln(72,58,74,52)+ln(62,58,64,52))}
+    ],
+    steps:["Lie flat, feet flat on floor hip-width apart, arms by sides.","Drive hips up by squeezing glutes hard.","At top, do small controlled pulses — a few centimetres up and down.","Keep hips high throughout — don't drop between pulses.","Squeeze glutes on every pulse."]
+  },
+  "Side Lying Hip Raise Right": {
+    note:"Lie on right side, bottom knee slightly bent. Drive hips up using obliques and glute med. Don't load through shoulder.", focus:"Right obliques · Glute med",
+    diag:[
+      {label:"Down", d:svg(100,70,fl(62)+hd(15,52)+ln(15,60,50,62)+ln(50,62,70,60)+ln(70,60,85,62)+ln(50,62,65,62)+ln(15,60,15,54)+ln(22,62,22,55))},
+      {label:"Raise", d:svg(100,70,fl(62)+hd(15,52)+ln(15,60,50,56,true)+ln(50,56,70,52,true)+ln(70,52,85,54,true)+ln(50,62,65,62)+ln(15,60,15,54)+ln(22,62,22,56))}
+    ],
+    steps:["Lie on right side, bottom knee can be slightly bent for balance.","Top leg straight, body in a straight line.","Drive hips up using obliques and glute med.","Don't prop or load through shoulder — use hip as base.","Hold 1 second at top, lower with control."]
+  },
+  "Side Lying Hip Raise Left": {
+    note:"Switch to left side. Drive hips up, keep hips stacked and facing forward. 1 second hold at top.", focus:"Left obliques · Glute med",
+    diag:[
+      {label:"Down", d:svg(100,70,fl(62)+hd(85,52)+ln(85,60,50,62)+ln(50,62,30,60)+ln(30,60,15,62)+ln(50,62,35,62)+ln(85,60,85,54)+ln(78,62,78,55))},
+      {label:"Raise", d:svg(100,70,fl(62)+hd(85,52)+ln(85,60,50,56,true)+ln(50,56,30,52,true)+ln(30,52,15,54,true)+ln(50,62,35,62)+ln(85,60,85,54)+ln(78,62,78,56))}
+    ],
+    steps:["Lie on left side, bottom knee slightly bent.","Stack hips directly on top of each other.","Drive hips up — focus on left oblique and left glute med.","Keep hips facing forward — don't rotate toward ceiling.","1 second hold at top, controlled descent."]
+  },
+  "V-Up Crunches": {
+    note:"Knees slightly bent, hands on temples. Crunch up toward knees and lower slowly. Alternate legs for more range.", focus:"Full rectus abdominis",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56)+ln(30,62,28,54)+ln(22,62,20,54))},
+      {label:"Crunch", d:svg(100,70,fl(62)+hd(70,42,7)+ln(70,49,55,55,true)+ln(55,55,40,52,true)+ln(40,52,25,48,true)+ln(70,49,70,44)+ln(62,46,54,42)+ln(54,42,62,38))}
+    ],
+    steps:["Lie flat, knees slightly bent, hands on temples.","In one movement crunch upper body up while drawing knees toward chest.","Meet in the middle — elbows and knees as close as comfortable.","Lower slowly — don't just drop back down.","Alternate legs for more range: one extends as the other bends."]
+  },
+
+  // ── STRETCHES ──
+  "Chest & Shoulder Opener": {
+    note:"Stand or sit tall. Clasp hands behind back, squeeze shoulder blades together, lift chest upward. Hold.", focus:"Chest · Anterior shoulder",
+    diag:[
+      {label:"Start", d:svg(100,80,hd(50,12)+ln(50,20,50,48)+ln(50,48,35,62)+ln(35,62,22,72)+ln(50,48,65,62)+ln(65,62,78,72)+ln(50,20,34,30)+ln(50,20,66,30)+`<line x1="34" y1="30" x2="66" y2="30" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" fill="none"/>`)},
+      {label:"Open", d:svg(100,80,hd(50,12)+ln(50,20,50,48)+ln(50,48,35,62)+ln(35,62,22,72)+ln(50,48,65,62)+ln(65,62,78,72)+ln(50,20,30,32)+ln(30,32,18,38,true)+ln(50,20,70,32)+ln(70,32,82,38,true))}
+    ],
+    steps:["Stand or sit upright with good posture.","Clasp hands behind your lower back, palms facing each other.","Gently squeeze shoulder blades together.","Simultaneously lift your chest toward the ceiling.","Hold and breathe deeply — feel the stretch across the chest."]
+  },
+  "Seated Forward Fold": {
+    note:"Sit on floor, legs straight out. Hinge from hips and reach toward feet. Keep back long not rounded.", focus:"Hamstrings · Lower back",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(20,46)+ln(20,54,70,62)+ln(20,54,20,48)+ln(28,50,22,44)+ln(22,44,30,42))},
+      {label:"Fold", d:svg(100,70,fl(62)+hd(30,38)+ln(30,46,70,62)+ln(30,46,28,40)+ln(28,40,48,36,true)+ln(48,36,68,42,true))}
+    ],
+    steps:["Sit on floor with both legs straight out in front.","Sit tall first — lengthen your spine before folding.","Hinge from the hips, not the lower back.","Reach hands toward feet or shins — go as far as comfortable.","Hold and breathe — relax deeper on each exhale."]
+  },
+  "Supine Spinal Twist Right": {
+    note:"Lie on back, draw right knee across body to the left. Extend right arm out. Hold and breathe.", focus:"Thoracic spine · Glutes",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56)+ln(50,62,42,52)+ln(42,52,38,62))},
+      {label:"Twist", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,38,52,true)+ln(38,52,28,56,true)+ln(82,56,72,48)+ln(82,56,92,48))}
+    ],
+    steps:["Lie flat on back, both knees bent.","Draw right knee up toward chest.","Gently guide right knee across body to the left with left hand.","Extend right arm out to the side at shoulder height.","Let gravity do the work — relax shoulders to floor."]
+  },
+  "Supine Spinal Twist Left": {
+    note:"Lie on back, draw left knee across body to the right. Extend left arm out. Hold and breathe.", focus:"Thoracic spine · Glutes",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56)+ln(50,62,42,52)+ln(42,52,38,62))},
+      {label:"Twist", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,62,52,true)+ln(62,52,72,56,true)+ln(82,56,72,48)+ln(82,56,92,48))}
+    ],
+    steps:["Lie flat on back, both knees bent.","Draw left knee up toward chest.","Guide left knee across body to the right with right hand.","Extend left arm out to side at shoulder height.","Breathe into the stretch — relax on every exhale."]
+  },
+  "Child's Pose": {
+    note:"Kneel and sit back on heels. Reach arms forward on floor or rest them by sides. Breathe into lower back.", focus:"Lower back · Hips · Thoracic spine",
+    diag:[
+      {label:"Arms Fwd", d:svg(100,70,fl(62)+hd(75,38)+ln(75,46,62,54)+ln(62,54,50,58)+ln(50,58,30,58)+ln(30,58,18,62)+ln(75,46,78,54)+ln(78,54,80,62)+ln(75,38,60,40)+ln(60,40,40,38,true)+ln(40,38,22,38,true))},
+      {label:"Arms Side", d:svg(100,70,fl(62)+hd(75,38)+ln(75,46,62,54)+ln(62,54,50,58)+ln(50,58,30,58)+ln(30,58,18,62)+ln(75,46,78,54)+ln(78,54,80,62)+ln(75,38,78,46)+ln(78,46,80,52))}
+    ],
+    steps:["Start on hands and knees, big toes touching.","Sink hips back toward heels.","Extend arms forward on floor or rest them by your sides.","Let your forehead rest on the mat.","Breathe deeply into your lower back — feel it expand on inhale."]
+  },
+  "Cat-Cow": {
+    note:"On hands and knees. Alternate between arching back up (cat) and dropping belly down (cow). 45 seconds of movement.", focus:"Spine mobility · Lower back",
+    diag:[
+      {label:"Cat", d:svg(100,80,hd(20,38)+ln(20,46,50,44)+ln(50,44,80,46)+ln(20,46,14,62)+ln(20,46,26,62)+ln(80,46,74,62)+ln(80,46,86,62)+ln(20,46,16,36)+ln(80,46,84,36)+`<path d="M 20 44 Q 50 36 80 44" stroke="#f59e0b" stroke-width="2" fill="none"/>`)},
+      {label:"Cow", d:svg(100,80,hd(20,46)+ln(20,54,50,56)+ln(50,56,80,54)+ln(20,54,14,70)+ln(20,54,26,70)+ln(80,54,74,70)+ln(80,54,86,70)+ln(20,54,16,44)+ln(80,54,84,44)+`<path d="M 20 56 Q 50 66 80 56" stroke="#f59e0b" stroke-width="2" fill="none"/>`)}
+    ],
+    steps:["Start on hands and knees, wrists under shoulders, knees under hips.","CAT: exhale and round your spine toward ceiling, tuck chin to chest.","COW: inhale and let belly drop toward floor, lift chest and tailbone.","Move slowly and continuously between the two for the full 45 seconds.","Let your breath drive the movement — exhale cat, inhale cow."]
+  },
+  "Lying Quad Stretch Right": {
+    note:"Lie on right side. Bring right heel toward glutes and hold with right hand. Keep knees together.", focus:"Right quadriceps · Hip flexor",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(15,48)+ln(15,56,50,62)+ln(50,62,75,58)+ln(75,58,85,62)+ln(15,56,15,50))},
+      {label:"Stretch", d:svg(100,70,fl(62)+hd(15,48)+ln(15,56,50,62)+ln(50,62,65,52,true)+ln(65,52,60,40,true)+ln(15,56,15,50)+ln(52,58,62,52,true))}
+    ],
+    steps:["Lie on right side in a straight line.","Bend right knee, bringing heel toward glutes.","Reach right hand back to hold right ankle or foot.","Keep knees stacked — don't let top knee drift forward.","Hold and breathe — feel stretch along front of right thigh."]
+  },
+  "Lying Quad Stretch Left": {
+    note:"Lie on left side. Bring left heel toward glutes and hold with left hand. Keep knees together.", focus:"Left quadriceps · Hip flexor",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(85,48)+ln(85,56,50,62)+ln(50,62,25,58)+ln(25,58,15,62)+ln(85,56,85,50))},
+      {label:"Stretch", d:svg(100,70,fl(62)+hd(85,48)+ln(85,56,50,62)+ln(50,62,35,52,true)+ln(35,52,40,40,true)+ln(85,56,85,50)+ln(48,58,38,52,true))}
+    ],
+    steps:["Lie on left side in a straight line.","Bend left knee, bringing heel toward glutes.","Reach left hand back to hold left ankle or foot.","Keep knees stacked together.","Hold and breathe — feel the stretch along front of left thigh."]
+  },
+  "Thread the Needle Right": {
+    note:"On hands and knees. Slide right arm under body to the left, resting right shoulder on mat. Hold.", focus:"Thoracic rotation · Upper back",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(20,34)+ln(20,42,50,44)+ln(50,44,80,42)+ln(20,42,14,58)+ln(20,42,26,58)+ln(80,42,74,58)+ln(80,42,86,58)+ln(20,42,14,34)+ln(80,42,86,34))},
+      {label:"Thread", d:svg(100,70,fl(62)+hd(20,38)+ln(20,46,50,48)+ln(50,48,80,46)+ln(20,46,14,62)+ln(20,46,26,62)+ln(80,46,74,62)+ln(80,46,86,62)+ln(80,46,60,44,true)+ln(60,44,38,50,true)+ln(38,50,22,52,true))}
+    ],
+    steps:["Start on hands and knees in tabletop position.","Raise right arm toward ceiling briefly.","Slide right arm under body to the left, threading through.","Rest right shoulder and cheek on the mat.","Keep hips square and level — hold and breathe."]
+  },
+  "Thread the Needle Left": {
+    note:"On hands and knees. Slide left arm under body to the right, resting left shoulder on mat. Hold.", focus:"Thoracic rotation · Upper back",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(20,34)+ln(20,42,50,44)+ln(50,44,80,42)+ln(20,42,14,58)+ln(20,42,26,58)+ln(80,42,74,58)+ln(80,42,86,58)+ln(20,42,14,34)+ln(80,42,86,34))},
+      {label:"Thread", d:svg(100,70,fl(62)+hd(80,38)+ln(80,46,50,48)+ln(50,48,20,46)+ln(80,46,86,62)+ln(80,46,74,62)+ln(20,46,14,62)+ln(20,46,26,62)+ln(20,46,40,44,true)+ln(40,44,62,50,true)+ln(62,50,78,52,true))}
+    ],
+    steps:["Start on hands and knees in tabletop position.","Raise left arm toward ceiling briefly.","Slide left arm under body to the right, threading through.","Rest left shoulder and cheek on the mat.","Keep hips square — hold and breathe into the rotation."]
+  },
+  "Seated Glute Stretch Right": {
+    note:"Sit with right ankle crossed over left knee (figure four). Gently press right knee down. Sit tall.", focus:"Right glute · Piriformis",
+    diag:[
+      {label:"Seated", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,38)+ln(50,38,35,52)+ln(35,52,22,62)+ln(50,38,58,44)+ln(58,44,65,38)+ln(65,38,42,52,true))},
+      {label:"Press", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,38)+ln(50,38,35,52)+ln(35,52,22,62)+ln(50,38,58,44)+ln(58,44,65,38)+ln(65,38,42,52,true)+ln(50,18,60,28)+ln(60,28,65,36,true))}
+    ],
+    steps:["Sit upright on floor or chair.","Cross right ankle over left knee, forming a figure four.","Sit tall and gently press right knee downward.","For a deeper stretch, lean forward slightly from the hips.","Hold and breathe — feel the stretch deep in the right glute."]
+  },
+  "Seated Glute Stretch Left": {
+    note:"Sit with left ankle crossed over right knee (figure four). Gently press left knee down. Sit tall.", focus:"Left glute · Piriformis",
+    diag:[
+      {label:"Seated", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,38)+ln(50,38,65,52)+ln(65,52,78,62)+ln(50,38,42,44)+ln(42,44,35,38)+ln(35,38,58,52,true))},
+      {label:"Press", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,38)+ln(50,38,65,52)+ln(65,52,78,62)+ln(50,38,42,44)+ln(42,44,35,38)+ln(35,38,58,52,true)+ln(50,18,40,28)+ln(40,28,35,36,true))}
+    ],
+    steps:["Sit upright on floor or chair.","Cross left ankle over right knee, forming a figure four.","Sit tall and gently press left knee downward.","Lean forward slightly from hips for a deeper stretch.","Hold and breathe — feel the stretch deep in left glute."]
+  },
+  "Doorway Chest Stretch": {
+    note:"Stand in a doorway or use a wall. Place forearm on frame at 90°, rotate body away. Hold each side.", focus:"Chest · Anterior shoulder · Biceps",
+    diag:[
+      {label:"Setup", d:svg(100,80,hd(40,12)+ln(40,20,40,50)+ln(40,50,28,65)+ln(28,65,20,78)+ln(40,50,52,65)+ln(52,65,60,78)+ln(40,20,22,30)+ln(22,30,14,22)+`<line x1="14" y1="8" x2="14" y2="80" stroke="#2a2a38" stroke-width="3" fill="none"/>`)},
+      {label:"Stretch", d:svg(100,80,hd(50,12)+ln(50,20,50,50)+ln(50,50,38,65)+ln(38,65,30,78)+ln(50,50,62,65)+ln(62,65,70,78)+ln(50,20,32,26)+ln(32,26,14,28,true)+`<line x1="14" y1="8" x2="14" y2="80" stroke="#2a2a38" stroke-width="3" fill="none"/>`)}
+    ],
+    steps:["Stand in a doorway, place right forearm against the frame.","Forearm vertical, elbow at shoulder height — 90° angle.","Slowly rotate your whole body to the left, away from the arm.","Feel the stretch across the chest and front of shoulder.","Hold, then switch sides for the second half of the set."]
+  },
+  "Upper Trap Stretch Right": {
+    note:"Sit or stand tall. Tilt right ear toward right shoulder. Gently place right hand on left temple for added stretch.", focus:"Upper trapezius · Neck",
+    diag:[
+      {label:"Tilt", d:svg(100,70,hd(50,16,9)+ln(50,25,50,50)+ln(50,50,38,62)+ln(50,50,62,62)+ln(50,25,35,35)+ln(50,25,65,35)+`<line x1="50" y1="16" x2="65" y2="28" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" fill="none"/>`)},
+      {label:"Assist", d:svg(100,70,hd(55,20,9)+ln(55,29,50,50)+ln(50,50,38,62)+ln(50,50,62,62)+ln(55,29,40,36)+ln(40,36,30,32)+ln(55,29,68,34)+ln(68,34,76,28,true)+`<line x1="76" y1="28" x2="58" y2="22" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="3,2"/>`)}
+    ],
+    steps:["Sit or stand with good upright posture.","Tilt your right ear toward your right shoulder.","Keep left shoulder down — resist the urge to hike it up.","Optionally place right hand on left side of head for a gentle addition.","Hold and breathe — feel the stretch along the left side of neck."]
+  },
+  "Upper Trap Stretch Left": {
+    note:"Sit or stand tall. Tilt left ear toward left shoulder. Gently place left hand on right temple for added stretch.", focus:"Upper trapezius · Neck",
+    diag:[
+      {label:"Tilt", d:svg(100,70,hd(50,16,9)+ln(50,25,50,50)+ln(50,50,38,62)+ln(50,50,62,62)+ln(50,25,35,35)+ln(50,25,65,35)+`<line x1="50" y1="16" x2="35" y2="28" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" fill="none"/>`)},
+      {label:"Assist", d:svg(100,70,hd(45,20,9)+ln(45,29,50,50)+ln(50,50,38,62)+ln(50,50,62,62)+ln(45,29,60,36)+ln(60,36,70,32)+ln(45,29,32,34)+ln(32,34,24,28,true)+`<line x1="24" y1="28" x2="42" y2="22" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="3,2"/>`)}
+    ],
+    steps:["Sit or stand with good upright posture.","Tilt your left ear toward your left shoulder.","Keep right shoulder pressed down throughout.","Optionally place left hand on right side of head for extra stretch.","Hold and breathe — feel the stretch along right side of neck."]
+  },
+
+  // ── HIP FLEXOR & BACK ──
+  "Kneeling Hip Flexor Stretch Right": {
+    note:"Right knee on floor, left foot forward. Shift weight forward until you feel a stretch in right hip. Hold tall.", focus:"Right hip flexor · Psoas",
+    diag:[
+      {label:"Setup", d:svg(100,80,fl(72)+hd(50,12)+ln(50,20,50,42)+ln(50,42,65,56)+ln(65,56,72,72)+ln(50,42,38,52)+ln(38,52,30,42)+ln(30,42,22,52)+ln(22,52,18,72)+ln(50,20,40,30)+ln(50,20,60,30))},
+      {label:"Shift", d:svg(100,80,fl(72)+hd(55,10)+ln(55,18,55,40)+ln(55,40,70,52,true)+ln(70,52,76,72,true)+ln(55,40,42,52)+ln(42,52,34,42)+ln(34,42,26,52)+ln(26,52,22,72)+ln(55,18,44,28)+ln(55,18,66,28))}
+    ],
+    steps:["Kneel with right knee on floor, left foot flat forward.","Both knees at roughly 90° — square your hips forward.","Tuck your pelvis under slightly — don't arch lower back.","Shift your weight forward until you feel stretch in right hip.","Keep torso upright — hold and breathe deeply."]
+  },
+  "Kneeling Hip Flexor Stretch Left": {
+    note:"Left knee on floor, right foot forward. Shift weight forward until you feel a stretch in left hip. Hold tall.", focus:"Left hip flexor · Psoas",
+    diag:[
+      {label:"Setup", d:svg(100,80,fl(72)+hd(50,12)+ln(50,20,50,42)+ln(50,42,35,56)+ln(35,56,28,72)+ln(50,42,62,52)+ln(62,52,70,42)+ln(70,42,78,52)+ln(78,52,82,72)+ln(50,20,40,30)+ln(50,20,60,30))},
+      {label:"Shift", d:svg(100,80,fl(72)+hd(45,10)+ln(45,18,45,40)+ln(45,40,30,52,true)+ln(30,52,24,72,true)+ln(45,40,58,52)+ln(58,52,66,42)+ln(66,42,74,52)+ln(74,52,78,72)+ln(45,18,34,28)+ln(45,18,56,28))}
+    ],
+    steps:["Kneel with left knee on floor, right foot flat forward.","Square hips forward, both knees near 90°.","Tuck pelvis slightly — protect lower back from over-arching.","Shift weight forward until stretch is felt in left hip.","Stay tall through your torso — hold and breathe."]
+  },
+  "Pigeon Pose Right": {
+    note:"Right shin forward at an angle, left leg extended back. Sink hips toward floor. Use hands for support.", focus:"Right hip flexor · Glute · IT band",
+    diag:[
+      {label:"Setup", d:svg(100,80,fl(72)+hd(40,18)+ln(40,26,40,48)+ln(40,48,55,60)+ln(55,60,65,72)+ln(40,48,25,58)+ln(25,58,15,52)+ln(15,52,10,72)+ln(40,26,28,34)+ln(40,26,52,34)+ln(28,34,22,42)+ln(52,34,58,42))},
+      {label:"Sink", d:svg(100,80,fl(72)+hd(35,14)+ln(35,22,38,46)+ln(38,46,52,58,true)+ln(52,58,62,72)+ln(38,46,24,56)+ln(24,56,14,50)+ln(14,50,10,72)+ln(35,22,22,30)+ln(35,22,48,30))}
+    ],
+    steps:["From all fours, bring right knee forward, placing it behind right wrist.","Extend left leg straight back behind you.","Square hips toward floor as much as possible.","Use hands on floor for support — walk them forward to deepen.","Hold and breathe — relax hips toward mat on each exhale."]
+  },
+  "Pigeon Pose Left": {
+    note:"Left shin forward at an angle, right leg extended back. Sink hips toward floor. Use hands for support.", focus:"Left hip flexor · Glute · IT band",
+    diag:[
+      {label:"Setup", d:svg(100,80,fl(72)+hd(60,18)+ln(60,26,60,48)+ln(60,48,45,60)+ln(45,60,35,72)+ln(60,48,75,58)+ln(75,58,85,52)+ln(85,52,90,72)+ln(60,26,48,34)+ln(60,26,72,34)+ln(48,34,42,42)+ln(72,34,78,42))},
+      {label:"Sink", d:svg(100,80,fl(72)+hd(65,14)+ln(65,22,62,46)+ln(62,46,48,58,true)+ln(48,58,38,72)+ln(62,46,76,56)+ln(76,56,86,50)+ln(86,50,90,72)+ln(65,22,52,30)+ln(65,22,78,30))}
+    ],
+    steps:["From all fours, bring left knee forward behind left wrist.","Extend right leg straight back behind you.","Square hips toward floor — prevent one hip hiking up.","Walk hands forward to allow torso to lower.","Hold and breathe — sink deeper on each exhale."]
+  },
+  "Seated Figure Four Right": {
+    note:"Sit on floor, right ankle on left knee. Gently press right knee down and lean forward slightly.", focus:"Right piriformis · Glute · Hip rotators",
+    diag:[
+      {label:"Setup", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,40)+ln(50,40,65,52)+ln(65,52,75,62)+ln(50,40,42,46)+ln(42,46,38,38)+ln(38,38,56,50,true)+ln(50,18,40,28)+ln(50,18,60,28))},
+      {label:"Lean", d:svg(100,70,fl(62)+hd(50,14)+ln(50,22,52,44)+ln(52,44,66,54,true)+ln(66,54,74,62)+ln(52,44,44,48)+ln(44,48,40,40)+ln(40,40,58,52,true)+ln(50,14,38,22)+ln(50,14,62,22))}
+    ],
+    steps:["Sit upright on floor with both legs bent.","Cross right ankle over left knee — figure four shape.","Gently press right knee down toward floor.","Lean forward slightly from hips to deepen the stretch.","Feel the stretch deep in the right glute — breathe into it."]
+  },
+  "Seated Figure Four Left": {
+    note:"Sit on floor, left ankle on right knee. Gently press left knee down and lean forward slightly.", focus:"Left piriformis · Glute · Hip rotators",
+    diag:[
+      {label:"Setup", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,40)+ln(50,40,35,52)+ln(35,52,25,62)+ln(50,40,58,46)+ln(58,46,62,38)+ln(62,38,44,50,true)+ln(50,18,40,28)+ln(50,18,60,28))},
+      {label:"Lean", d:svg(100,70,fl(62)+hd(50,14)+ln(50,22,48,44)+ln(48,44,34,54,true)+ln(34,54,26,62)+ln(48,44,56,48)+ln(56,48,60,40)+ln(60,40,42,52,true)+ln(50,14,38,22)+ln(50,14,62,22))}
+    ],
+    steps:["Sit upright on floor with both legs bent.","Cross left ankle over right knee.","Gently press left knee down toward floor.","Lean forward from hips for a deeper stretch.","Hold and breathe — feel stretch deep in left glute."]
+  },
+  "Lying Knee to Chest Right": {
+    note:"Lie flat on back. Draw right knee toward chest with both hands. Keep left leg straight. Hold.", focus:"Lower back · Right hip",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56))},
+      {label:"Draw", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,42,48,true)+ln(42,48,44,38,true)+ln(72,54,62,44)+ln(62,44,52,42))}
+    ],
+    steps:["Lie flat on back, both legs extended.","Draw right knee toward your chest with both hands.","Keep left leg straight and relaxed on the mat.","Pull knee gently — don't force past comfortable range.","Hold and breathe — feel release in lower back and right hip."]
+  },
+  "Lying Knee to Chest Left": {
+    note:"Lie flat on back. Draw left knee toward chest with both hands. Keep right leg straight. Hold.", focus:"Lower back · Left hip",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56))},
+      {label:"Draw", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,58,48,true)+ln(58,48,56,38,true)+ln(72,54,62,44)+ln(62,44,52,42))}
+    ],
+    steps:["Lie flat on back, both legs extended.","Draw left knee toward your chest with both hands.","Keep right leg straight and relaxed on the mat.","Gently pull — feel the release in your lower back and left hip.","Breathe deeply — relax further on each exhale."]
+  },
+  "90-90 Hip Stretch Right": {
+    note:"Sit with right shin forward 90°, left shin to the side 90°. Sit tall and lean forward over right shin.", focus:"Right hip internal rotation · Glute",
+    diag:[
+      {label:"Setup", d:svg(100,80,fl(72)+hd(50,12)+ln(50,20,50,44)+ln(50,44,65,56)+ln(65,56,72,50)+ln(72,50,65,72)+ln(50,44,35,56)+ln(35,56,22,62)+ln(22,62,35,72)+ln(50,20,40,30)+ln(50,20,60,30))},
+      {label:"Lean", d:svg(100,80,fl(72)+hd(55,18)+ln(55,26,55,48,true)+ln(55,48,68,58,true)+ln(68,58,74,52)+ln(74,52,67,72)+ln(55,48,40,58)+ln(40,58,28,64)+ln(28,64,40,72)+ln(55,26,44,34)+ln(55,26,66,34))}
+    ],
+    steps:["Sit on floor with right shin in front at 90°, left shin to side at 90°.","Sit tall first — find a neutral pelvis.","Slowly lean forward over your front (right) shin.","Use hands on floor for support.","Hold and breathe — feel the stretch in right hip and glute."]
+  },
+  "90-90 Hip Stretch Left": {
+    note:"Sit with left shin forward 90°, right shin to the side 90°. Sit tall and lean forward over left shin.", focus:"Left hip internal rotation · Glute",
+    diag:[
+      {label:"Setup", d:svg(100,80,fl(72)+hd(50,12)+ln(50,20,50,44)+ln(50,44,35,56)+ln(35,56,28,50)+ln(28,50,35,72)+ln(50,44,65,56)+ln(65,56,78,62)+ln(78,62,65,72)+ln(50,20,40,30)+ln(50,20,60,30))},
+      {label:"Lean", d:svg(100,80,fl(72)+hd(45,18)+ln(45,26,45,48,true)+ln(45,48,32,58,true)+ln(32,58,26,52)+ln(26,52,33,72)+ln(45,48,60,58)+ln(60,58,72,64)+ln(72,64,60,72)+ln(45,26,34,34)+ln(45,26,56,34))}
+    ],
+    steps:["Sit on floor with left shin in front at 90°, right shin to side at 90°.","Find a tall neutral spine before leaning.","Slowly lean forward over your front (left) shin.","Use hands on floor for balance and support.","Hold and breathe — feel the stretch in left hip and glute."]
+  },
+  "Standing Forward Fold": {
+    note:"Stand feet hip-width. Hinge from hips and hang upper body down. Bend knees slightly if hamstrings are tight.", focus:"Hamstrings · Lower back · Calves",
+    diag:[
+      {label:"Stand", d:svg(100,80,hd(50,10)+ln(50,18,50,46)+ln(50,46,42,62)+ln(42,62,40,78)+ln(50,46,58,62)+ln(58,62,60,78)+ln(50,18,38,28)+ln(50,18,62,28))},
+      {label:"Fold", d:svg(100,80,hd(50,32)+ln(50,40,50,54)+ln(50,54,42,66)+ln(42,66,40,78)+ln(50,54,58,66)+ln(58,66,60,78)+ln(50,40,36,46,true)+ln(36,46,28,50,true)+ln(50,40,64,46,true)+ln(64,46,72,50,true))}
+    ],
+    steps:["Stand with feet hip-width apart, soft bend in knees.","Hinge from your hips — not your lower back.","Let your upper body hang heavy toward the floor.","Grab opposite elbows and let gravity do the work.","Breathe into the lower back — deepen on each exhale."]
+  },
+  "Thoracic Extension on Floor": {
+    note:"Lie on back, knees bent. Let your upper back relax and open toward the floor. Arms out to sides.", focus:"Thoracic spine · Upper back mobility",
+    diag:[
+      {label:"Passive", d:svg(100,70,fl(62)+hd(82,50)+ln(82,58,50,62)+ln(82,58,82,52)+ln(50,62,38,52)+ln(38,52,28,62)+ln(72,54,60,48)+ln(60,48,55,50)+ln(82,52,92,48)+ln(72,52,62,48))}
+    ],
+    steps:["Lie on your back with knees bent, feet flat.","Place arms out to your sides at about 45°, palms facing up.","Let your upper back completely relax into the floor.","Breathe deeply — on each inhale feel the upper back open.","This is a passive hold — just relax and let gravity work."]
+  },
+  "Supine Hamstring Stretch Right": {
+    note:"Lie flat. Draw right knee to chest then slowly straighten leg toward ceiling. Hold back of thigh not ankle.", focus:"Right hamstring · Lower back",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,42,50)+ln(42,50,44,40))},
+      {label:"Extend", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,44,48,true)+ln(44,48,38,32,true)+ln(64,52,54,44)+ln(54,44,46,38))}
+    ],
+    steps:["Lie flat on back, left leg straight on floor.","Draw right knee toward chest.","Slowly straighten right leg toward the ceiling.","Hold the back of your right thigh — not the ankle or calf.","Keep both hips on the mat — breathe and relax into the stretch."]
+  },
+  "Supine Hamstring Stretch Left": {
+    note:"Lie flat. Draw left knee to chest then slowly straighten leg toward ceiling. Hold back of thigh not ankle.", focus:"Left hamstring · Lower back",
+    diag:[
+      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,58,50)+ln(58,50,56,40))},
+      {label:"Extend", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,56,48,true)+ln(56,48,62,32,true)+ln(64,52,58,44)+ln(58,44,54,38))}
+    ],
+    steps:["Lie flat on back, right leg straight on floor.","Draw left knee toward chest.","Slowly straighten left leg toward ceiling.","Hold back of left thigh — not the ankle.","Keep hips flat on mat — breathe and ease deeper on exhale."]
+  }
+};
+
+// ── Routine definitions ────────────────────────────────────────────────────────
+const ROUTINES = [
+  {
+    id: 0,
+    title: "Full Core",
+    sub: "15 exercises · 40s on · 20s off",
+    work: 40, rest: 20,
+    icon: "💪",
+    completeMsg: "Full core circuit done.",
+    badgeClass: "badge-core",
+    workClass: "work-phase",
+    restClass: "rest-phase",
+    progressColor: "#4f46e5",
+    exercises: ["Bicycle Crunch","Reverse Crunch","Crunch Circles","Dead Bug","Leg Raises","Oblique Crunch Right","Oblique Crunch Left","Hollow Hold","Side Plank Right","Side Plank Left","Windscreen Wipers","Hip Flexor Compressions Right","Hip Flexor Compressions Left","Glute Bridge Pulses","V-Up Crunches"]
+  },
+  {
+    id: 1,
+    title: "Shoulder Safe Core",
+    sub: "15 exercises · 40s on · 20s off",
+    work: 40, rest: 20,
+    icon: "🩹",
+    completeMsg: "Shoulder safe circuit done. Great work.",
+    badgeClass: "badge-core",
+    workClass: "work-phase",
+    restClass: "rest-phase",
+    progressColor: "#4f46e5",
+    exercises: ["Heel Touches","Reverse Crunch","Crunch Circles","Toe Taps","Leg Raises","Oblique Crunch Right","Oblique Crunch Left","Hollow Hold","Side Lying Hip Raise Right","Side Lying Hip Raise Left","Windscreen Wipers","Hip Flexor Compressions Right","Hip Flexor Compressions Left","Glute Bridge Pulses","V-Up Crunches"]
+  },
+  {
+    id: 2,
+    title: "General Stretch",
+    sub: "15 stretches · 45s hold · 15s transition",
+    work: 45, rest: 15,
+    icon: "🧘",
+    completeMsg: "Full body stretch complete. Nice work.",
+    badgeClass: "badge-stretch",
+    workClass: "stretch-work",
+    restClass: "stretch-rest",
+    progressColor: "#f59e0b",
+    exercises: ["Chest & Shoulder Opener","Seated Forward Fold","Supine Spinal Twist Right","Supine Spinal Twist Left","Child's Pose","Cat-Cow","Lying Quad Stretch Right","Lying Quad Stretch Left","Thread the Needle Right","Thread the Needle Left","Seated Glute Stretch Right","Seated Glute Stretch Left","Doorway Chest Stretch","Upper Trap Stretch Right","Upper Trap Stretch Left"]
+  },
+  {
+    id: 3,
+    title: "Hip Flexor & Back",
+    sub: "15 stretches · 45s hold · 15s transition",
+    work: 45, rest: 15,
+    icon: "🔧",
+    completeMsg: "Hip flexor and back stretch complete.",
+    badgeClass: "badge-stretch",
+    workClass: "stretch-work",
+    restClass: "stretch-rest",
+    progressColor: "#f59e0b",
+    exercises: ["Kneeling Hip Flexor Stretch Right","Kneeling Hip Flexor Stretch Left","Pigeon Pose Right","Pigeon Pose Left","Seated Figure Four Right","Seated Figure Four Left","Lying Knee to Chest Right","Lying Knee to Chest Left","90-90 Hip Stretch Right","90-90 Hip Stretch Left","Standing Forward Fold","Supine Hamstring Stretch Right","Supine Hamstring Stretch Left","Supine Spinal Twist Right","Thoracic Extension on Floor"]
+  }
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let activeRoutine = null;
+let current = 0, timeLeft = 40, isWork = true, running = false, interval = null;
+let audioCtx = null, howToOpen = false;
+
+// ── Audio ─────────────────────────────────────────────────────────────────────
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function beep(f,d,t='sine',v=0.4){try{const c=getAudio(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t;o.frequency.setValueAtTime(f,c.currentTime);g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);o.start(c.currentTime);o.stop(c.currentTime+d);}catch(e){}}
+function buzz(){beep(80,0.15,'square',0.5);setTimeout(()=>beep(80,0.15,'square',0.5),180);}
+function countdownBeep(){beep(880,0.1,'sine',0.3);}
+function speak(t){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=0.95;u.pitch=1;u.volume=1;window.speechSynthesis.speak(u);}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function startRoutine(idx) {
+  activeRoutine = ROUTINES[idx];
+  current = 0; timeLeft = activeRoutine.work; isWork = true; running = false;
+  howToOpen = false;
+  document.getElementById('menuScreen').style.display = 'none';
+  document.getElementById('timerScreen').style.display = 'block';
+  document.getElementById('completeScreen').style.display = 'none';
+  document.getElementById('routineTitle').textContent = activeRoutine.title;
+  document.getElementById('routineSub').textContent = activeRoutine.sub;
+  document.getElementById('progressFill').style.background = activeRoutine.progressColor;
+  document.getElementById('mainBtn').textContent = 'Start';
+  document.getElementById('howToPanel').classList.remove('open');
+  document.getElementById('howToBtn').textContent = '▾ How to do this';
+  updateDisplay();
+}
+
+function goBack() {
+  clearInterval(interval); running = false;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  document.getElementById('timerScreen').style.display = 'none';
+  document.getElementById('menuScreen').style.display = 'block';
+}
+
+// ── Display ───────────────────────────────────────────────────────────────────
+function updateDisplay() {
+  if (!activeRoutine) return;
+  const exNames = activeRoutine.exercises;
+  const exName = exNames[current];
+  const ex = EXDB[exName];
+  document.getElementById('timerDisplay').textContent = timeLeft;
+  document.getElementById('exNumber').textContent = `Exercise ${current+1} of ${exNames.length}`;
+  document.getElementById('exName').textContent = exName;
+  document.getElementById('exNote').textContent = ex ? ex.note : '';
+  const focusEl = document.getElementById('exFocus');
+  focusEl.textContent = ex ? ex.focus : '';
+  focusEl.className = 'ex-focus ' + (activeRoutine.id >= 2 ? 'badge-stretch' : 'badge-core');
+  document.getElementById('nextName').textContent = exNames[current+1] || 'Done!';
+  document.getElementById('phaseLabel').textContent = isWork ? (activeRoutine.id >= 2 ? 'HOLD' : 'WORK') : 'REST';
+  const cd = timeLeft <= 3 && timeLeft > 0;
+  const wrap = document.getElementById('ringWrap');
+  wrap.className = 'timer-ring ' + (isWork ? activeRoutine.workClass : activeRoutine.restClass) + (cd ? ' countdown' : '');
+  const total = isWork ? activeRoutine.work : activeRoutine.rest;
+  document.getElementById('ringProgress').style.strokeDashoffset = C * (1 - timeLeft / total);
+  document.getElementById('progressFill').style.width = (current / exNames.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = `${current} of ${exNames.length} complete`;
+  if (howToOpen) renderHowTo(current);
+}
+
+function renderHowTo(idx) {
+  const exName = activeRoutine.exercises[idx];
+  const ex = EXDB[exName];
+  if (!ex) return;
+  document.getElementById('diagramWrap').innerHTML = (ex.diag||[]).map(d=>`<div class="diagram-frame">${d.d}<div class="diagram-label">${d.label}</div></div>`).join('');
+  document.getElementById('stepsList').innerHTML = (ex.steps||[]).map((s,i)=>`<li data-n="${i+1}">${s}</li>`).join('');
+}
+
+function toggleHowTo() {
+  howToOpen = !howToOpen;
+  const panel = document.getElementById('howToPanel');
+  const btn = document.getElementById('howToBtn');
+  if (howToOpen) { renderHowTo(current); panel.classList.add('open'); btn.textContent = '▴ Hide'; }
+  else { panel.classList.remove('open'); btn.textContent = '▾ How to do this'; }
+}
+
+// ── Timer ─────────────────────────────────────────────────────────────────────
+function tick() {
+  timeLeft--;
+  if (timeLeft <= 3 && timeLeft > 0) countdownBeep();
+  if (timeLeft < 0) {
+    buzz();
+    if (isWork) {
+      if (current === activeRoutine.exercises.length - 1) {
+        clearInterval(interval); running = false;
+        speak(activeRoutine.completeMsg);
+        document.getElementById('progressFill').style.width = '100%';
+        document.getElementById('progressLabel').textContent = `${activeRoutine.exercises.length} of ${activeRoutine.exercises.length} complete`;
+        document.getElementById('completeIcon').textContent = activeRoutine.icon;
+        document.getElementById('completeMsg').textContent = activeRoutine.completeMsg;
+        setTimeout(()=>{ document.getElementById('completeScreen').style.display='block'; },400);
+        return;
+      }
+      isWork = false; timeLeft = activeRoutine.rest;
+      const nx = activeRoutine.exercises[current+1];
+      if (nx) speak((activeRoutine.id >= 2 ? 'Rest. Next — ' : 'Rest. Next up — ') + nx);
+    } else {
+      isWork = true; current++; timeLeft = activeRoutine.work;
+      speak(activeRoutine.exercises[current] + (activeRoutine.id >= 2 ? '. Hold.' : '. Go.'));
+    }
+  }
+  updateDisplay();
+}
+
+function toggleTimer() {
+  if (running) {
+    clearInterval(interval); running = false;
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    document.getElementById('mainBtn').textContent = 'Resume';
+  } else {
+    try { getAudio(); } catch(e) {}
+    running = true;
+    document.getElementById('mainBtn').textContent = 'Pause';
+    speak((activeRoutine.id >= 2 ? 'Starting. ' : 'Starting. ') + activeRoutine.exercises[current]);
+    interval = setInterval(tick, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(interval); running = false;
+  current = 0; timeLeft = activeRoutine.work; isWork = true;
+  howToOpen = false;
+  document.getElementById('mainBtn').textContent = 'Start';
+  document.getElementById('howToPanel').classList.remove('open');
+  document.getElementById('howToBtn').textContent = '▾ How to do this';
+  document.getElementById('completeScreen').style.display = 'none';
+  updateDisplay();
+}
+</script>
+</body>
+</html>

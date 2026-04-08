@@ -654,7 +654,7 @@ function speak(t){if(!window.speechSynthesis)return;window.speechSynthesis.cance
 // ── Navigation ────────────────────────────────────────────────────────────────
 function startRoutine(idx) {
   activeRoutine = ROUTINES[idx];
-  current = 0; timeLeft = activeRoutine.work; isWork = true; running = false;
+  current = 0; timeLeft = activeRoutine.work; isWork = true; running = false; inIntro = false;
   howToOpen = false;
   document.getElementById('menuScreen').style.display = 'none';
   document.getElementById('timerScreen').style.display = 'block';
@@ -717,9 +717,34 @@ function toggleHowTo() {
 }
 
 // ── Timer ─────────────────────────────────────────────────────────────────────
+const INTRO = 10; // seconds before first exercise
+let inIntro = false;
+
 function tick() {
   timeLeft--;
-  if (timeLeft <= 3 && timeLeft > 0) countdownBeep();
+
+  // ── Intro countdown ──
+  if (inIntro) {
+    if (timeLeft <= 3 && timeLeft > 0) {
+      countdownBeep();
+      speak(String(timeLeft));
+    }
+    if (timeLeft <= 0) {
+      inIntro = false;
+      timeLeft = activeRoutine.work;
+      buzz();
+      speak(activeRoutine.exercises[0] + (activeRoutine.id >= 2 ? '. Hold.' : '. Go.'));
+    }
+    updateDisplayIntro();
+    return;
+  }
+
+  // ── Normal countdown beep + spoken numbers last 3 secs ──
+  if (timeLeft <= 3 && timeLeft > 0) {
+    countdownBeep();
+    speak(String(timeLeft));
+  }
+
   if (timeLeft < 0) {
     buzz();
     if (isWork) {
@@ -744,6 +769,13 @@ function tick() {
   updateDisplay();
 }
 
+function updateDisplayIntro() {
+  document.getElementById('timerDisplay').textContent = timeLeft <= 0 ? 0 : timeLeft;
+  document.getElementById('phaseLabel').textContent = 'GET READY';
+  document.getElementById('ringWrap').className = 'timer-ring rest-phase' + (timeLeft <= 3 && timeLeft > 0 ? ' countdown' : '');
+  document.getElementById('ringProgress').style.strokeDashoffset = C * (1 - Math.max(timeLeft,0) / INTRO);
+}
+
 function toggleTimer() {
   if (running) {
     clearInterval(interval); running = false;
@@ -753,13 +785,18 @@ function toggleTimer() {
     try { getAudio(); } catch(e) {}
     running = true;
     document.getElementById('mainBtn').textContent = 'Pause';
-    speak((activeRoutine.id >= 2 ? 'Starting. ' : 'Starting. ') + activeRoutine.exercises[current]);
+    // Only run intro if this is the very first start (current===0, isWork, full time)
+    if (current === 0 && isWork && timeLeft === activeRoutine.work && !inIntro) {
+      inIntro = true;
+      timeLeft = INTRO;
+      speak('Get ready. ' + activeRoutine.exercises[0] + ' in 10 seconds.');
+    }
     interval = setInterval(tick, 1000);
   }
 }
 
 function resetTimer() {
-  clearInterval(interval); running = false;
+  clearInterval(interval); running = false; inIntro = false;
   current = 0; timeLeft = activeRoutine.work; isWork = true;
   howToOpen = false;
   document.getElementById('mainBtn').textContent = 'Start';

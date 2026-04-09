@@ -197,34 +197,80 @@ const EXDB = {
   "Bicycle Crunch": {
     note:"Hands on temples, elbows wide. Opposite elbow to opposite knee, big torso rotation. Keep lower back on mat.", focus:"Rectus abdominis · Obliques",
     diag:[
-      {label:"Start", d:svg(100,70,fl(62)+hd(50,12)+ln(50,20,50,40)+ln(50,40,35,55)+ln(35,55,20,62)+ln(50,40,65,55)+ln(65,55,80,48)+ln(50,20,30,30)+ln(30,30,18,26)+ln(50,20,70,30)+ln(70,30,82,26))},
-      {label:"Crunch", d:svg(100,70,fl(62)+hd(38,18)+ln(38,26,52,42)+ln(52,42,40,56)+ln(40,56,28,62)+ln(52,42,68,50)+ln(68,50,80,44,true)+ln(38,26,24,32)+ln(24,32,16,28)+ln(38,26,54,30)+ln(54,30,62,22,true))}
+      {label:"Start — knees at 90°", d:svg(120,80,
+        fl(70,5,115)+hd(100,58,7)+
+        ln(100,65,70,70)+ln(70,70,40,70)+ln(40,70,15,70)+
+        ln(70,70,65,55)+ln(65,55,58,44)+
+        ln(40,70,38,55)+ln(38,55,45,44)+
+        ln(100,65,97,58)+
+        ln(90,68,85,60)+ln(85,60,88,54)+
+        ln(80,68,76,62)+ln(76,62,80,56))},
+      {label:"Crunch — elbow to knee", d:svg(120,80,
+        fl(70,5,115)+hd(90,52,7)+
+        ln(90,59,65,68)+ln(65,68,35,70)+ln(35,70,12,70)+
+        ln(65,68,58,55)+ln(58,55,52,44)+
+        ln(35,70,36,55)+ln(36,55,44,44)+
+        ln(90,59,87,53)+
+        ln(82,65,72,55,true)+ln(72,55,62,47,true)+
+        ln(78,67,74,58)+ln(74,58,60,52,true))}
     ],
-    steps:["Lie flat, hands lightly on temples — don't pull neck.","Lift feet so knees are at 90°.","Rotate torso bringing right elbow toward left knee while extending right leg.","Switch sides in a smooth cycling motion — rotate from torso not neck.","Keep lower back pressed to the mat throughout."]
+    steps:["Lie flat, hands lightly on temples — don't pull neck.","Lift both feet so knees are at 90°, shins parallel to floor.","Rotate torso bringing right elbow toward left knee while extending right leg.","Switch sides in a smooth cycling motion — rotate from torso not neck.","Keep lower back pressed to the mat throughout."]
   },
   "Heel Touches": {
     note:"Lie on back, knees bent, feet flat. Reach each hand alternately down toward the same-side heel. Arms stay low the entire time.", focus:"Obliques · Lateral core",
     diag:[
-      {label:"Start", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,40)+ln(50,40,38,54)+ln(38,54,30,62)+ln(50,40,62,54)+ln(62,54,70,62)+ln(50,18,36,28)+ln(50,18,64,28))},
-      {label:"Reach", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,48,40)+ln(48,40,36,54)+ln(36,54,28,62)+ln(48,40,60,54)+ln(60,54,68,62)+ln(50,18,38,26)+ln(38,26,30,34,true)+ln(50,18,62,28))}
+      {label:"Start — knees bent", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(60,68,52,55)+ln(52,55,46,68)+
+        ln(30,68,28,60)+ln(20,68,18,60))},
+      {label:"Reach to heel", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(60,68,52,55)+ln(52,55,46,68)+
+        ln(30,68,28,60)+ln(20,68,18,60)+
+        ln(28,62,22,66,true))}
     ],
-    steps:["Lie flat, knees bent, feet flat on floor hip-width apart.","Arms flat by your sides, palms facing down.","Crunch slightly and reach your right hand down to touch your right heel.","Return to centre, then reach your left hand to your left heel.","Keep the movement lateral — don't rotate across the body."]
+    steps:["Lie flat, knees bent, feet flat on floor hip-width apart.","Arms flat by your sides, palms facing inward.","Crunch slightly to one side and reach right hand down to right heel.","Return to centre, then reach left hand to left heel.","Keep the movement lateral — short crunching alternations."]
   },
   "Reverse Crunch": {
     note:"Hands flat by sides. Roll knees toward chest lifting hips off the mat. Lower slowly — no momentum.", focus:"Lower rectus abdominis",
     diag:[
-      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(50,62,35,52)+ln(35,52,20,55)+ln(82,62,82,56)+ln(70,62,75,50)+ln(60,62,63,50))},
-      {label:"Lift", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(50,62,42,48,true)+ln(42,48,38,36,true)+ln(82,62,82,56)+ln(70,62,72,54)+ln(60,62,62,54))}
+      {label:"Start — knees at 90°", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(60,68,50,56)+ln(50,56,44,68)+
+        ln(38,68,36,60)+ln(28,68,26,60))},
+      {label:"Roll knees to chest", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,65,68)+ln(65,68,20,68)+
+        ln(100,63,97,57)+
+        ln(65,66,56,52,true)+ln(56,52,50,42,true)+
+        ln(36,68,34,60)+ln(26,68,24,60))}
     ],
     steps:["Lie flat, arms by sides, palms down.","Bend knees to 90° with feet off floor.","Use abs to roll knees toward chest, lifting hips off mat.","Pause at top, then slowly lower back down.","Stop before feet touch floor and repeat."]
   },
   "Crunch Circles": {
-    note:"Arms crossed on chest. Big slow circles — 20 seconds each direction. Open abs on the way down.", focus:"Rectus abdominis · Obliques",
+    note:"Arms crossed on chest. 20 seconds clockwise, then 20 seconds anti-clockwise. Open abs on the way down, draw elbows to quads on the way up.", focus:"Rectus abdominis · Obliques",
+    announce:"Crunch Circles. 20 seconds clockwise, then switch to anti-clockwise.",
     diag:[
-      {label:"Up", d:svg(100,70,fl(62)+hd(50,10)+ln(50,18,50,42)+ln(50,42,35,55)+ln(35,55,20,62)+ln(50,42,65,55)+ln(65,55,80,62)+ln(50,18,38,24)+ln(50,18,62,24)+ln(38,24,62,24))},
-      {label:"Circle", d:svg(100,70,fl(62)+hd(50,12)+ln(50,20,48,44)+ln(48,44,33,56)+ln(33,56,18,62)+ln(48,44,63,56)+ln(63,56,78,62)+ln(50,20,36,26,true)+ln(50,20,64,26,true)+`<path d="M 38 24 Q 50 18 62 24" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="3,2"/>`)}
+      {label:"Clockwise ↻", d:svg(100,80,
+        fl(72)+hd(50,12)+
+        ln(50,20,50,46)+ln(50,46,36,58)+ln(36,58,22,68)+ln(50,46,64,58)+ln(64,58,78,68)+
+        ln(50,20,38,28)+ln(38,28,50,28)+
+        `<path d="M 36 24 Q 50 16 64 24 Q 70 32 64 38" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="3,2"/>` +
+        `<polygon points="64,38 60,34 68,34" fill="#f59e0b"/>`)},
+      {label:"Anti-clockwise ↺", d:svg(100,80,
+        fl(72)+hd(50,12)+
+        ln(50,20,50,46)+ln(50,46,36,58)+ln(36,58,22,68)+ln(50,46,64,58)+ln(64,58,78,68)+
+        ln(50,20,38,28)+ln(38,28,50,28)+
+        `<path d="M 64 24 Q 50 16 36 24 Q 30 32 36 38" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="3,2"/>` +
+        `<polygon points="36,38 32,34 40,34" fill="#f59e0b"/>`)}
     ],
-    steps:["Lie flat, arms crossed over chest, hands on opposite shoulders.","Lift shoulders slightly off mat to engage abs.","Draw a slow large circle — up, one side, back down, other side.","Do 20 seconds clockwise then reverse for 20 seconds.","Keep lower back on the mat the whole time."]
+    steps:["Lie flat, arms crossed over chest, hands on opposite shoulders.","Lift shoulders slightly off mat to engage abs.","Draw a slow large clockwise circle for 20 seconds — up, right, down, left.","Switch direction immediately for the remaining 20 seconds.","Keep lower back on the mat throughout — open abs on the way down."]
   },
   "Dead Bug": {
     note:"Knees at 90°, arms pointing straight up to ceiling. Drop opposite arm and leg toward floor. Press lower back flat the whole time.", focus:"Transverse abdominis · Hip flexors",
@@ -237,18 +283,40 @@ const EXDB = {
   "Toe Taps": {
     note:"Lie flat, knees at 90° raised above hips, arms flat by sides. Alternate tapping each foot to the floor. Press lower back flat the whole time.", focus:"Transverse abdominis · Lower abs",
     diag:[
-      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,38,52)+ln(38,52,30,62)+ln(50,62,62,52)+ln(62,52,70,62)+ln(70,62,72,54)+ln(60,62,62,54))},
-      {label:"Tap", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,38,52)+ln(38,52,34,62,true)+ln(50,62,62,52)+ln(62,52,70,48)+ln(70,62,72,54)+ln(60,62,62,54))}
+      {label:"Start — shins parallel", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(55,68,50,56)+ln(50,56,50,44)+
+        ln(38,68,34,56)+ln(34,56,34,44)+
+        ln(28,68,26,60)+ln(18,68,16,60))},
+      {label:"Tap one foot down", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(55,68,50,56)+ln(50,56,44,66,true)+
+        ln(38,68,34,56)+ln(34,56,34,44)+
+        ln(28,68,26,60)+ln(18,68,16,60))}
     ],
     steps:["Lie flat on back, arms completely flat by sides — palms down.","Raise both knees to 90° so shins are parallel to the floor.","Press lower back firmly into the mat — must stay flat throughout.","Slowly lower right foot to tap the floor, then bring it back up.","Alternate feet in a controlled rhythm — shorten range if back arches."]
   },
   "Leg Raises": {
     note:"Hands flat by sides. Raise both legs to vertical, lower as far as you can without arching the lower back.", focus:"Lower abs · Hip flexors",
     diag:[
-      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56)+ln(30,62,30,55)+ln(22,62,22,56))},
-      {label:"Raise", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(30,62,30,56)+ln(22,62,22,56)+ln(50,62,35,38,true)+ln(35,38,20,18,true))}
+      {label:"Start — legs flat", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,20,68)+
+        ln(100,63,97,57)+
+        ln(85,67,82,60)+ln(75,67,72,60))},
+      {label:"Raise to vertical", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(85,67,82,60)+ln(75,67,72,60)+
+        ln(55,68,46,50,true)+ln(46,50,38,32,true)+
+        ln(42,68,34,50,true)+ln(34,50,26,32,true))}
     ],
-    steps:["Lie flat, arms by sides, palms down.","Press lower back into mat — eliminate any arch.","Keeping legs straight, raise them until vertical.","Lower slowly as far as you can without lower back arching.","Shorten range if needed — quality over depth."]
+    steps:["Lie flat, arms by sides, palms down.","Press lower back into mat — eliminate any arch.","Keeping legs straight, raise them together until vertical.","Lower slowly as far as you can without lower back arching off mat.","Shorten range if needed — quality over depth."]
   },
   "Oblique Crunch Right": {
     note:"Left knee down, right knee up. Right hand on temple, left on obliques. Crunch right elbow toward right hip.", focus:"Right obliques",
@@ -269,10 +337,21 @@ const EXDB = {
   "Hollow Hold": {
     note:"Arms crossed on chest, legs lifted. Press lower back flat to floor and hold. Bend knees if the arch appears.", focus:"Deep core · Transverse abdominis",
     diag:[
-      {label:"Setup", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56)+ln(45,62,40,52)+ln(35,62,32,54))},
-      {label:"Hold", d:svg(100,70,fl(62)+hd(75,46)+ln(75,54,55,54,true)+ln(75,54,75,48)+ln(55,54,40,46,true)+ln(40,46,22,38,true)+ln(62,50,56,44)+ln(56,44,64,42))}
+      {label:"Setup — flat", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,20,68)+
+        ln(100,63,97,57)+
+        ln(86,66,80,58)+ln(80,58,84,53)+
+        ln(78,66,73,60)+ln(73,60,76,55))},
+      {label:"Hollow — legs and shoulders up", d:svg(120,75,
+        fl(68,5,115)+hd(96,50,7)+
+        ln(96,57,62,62,true)+ln(62,62,20,65)+
+        ln(96,57,93,51)+
+        ln(85,64,80,56,true)+ln(80,56,74,46,true)+
+        ln(74,63,70,55,true)+ln(70,55,64,45,true)+
+        ln(85,60,76,55)+ln(76,55,80,50))}
     ],
-    steps:["Lie flat, arms crossed on chest — hands on opposite shoulders.","Press lower back firmly into floor.","Lift both legs off floor — bent knees to start if needed.","Hold with lower back glued to mat.","If back arches, bend knees more to reduce lever arm."]
+    steps:["Lie flat, arms crossed on chest — hands on opposite shoulders.","Press lower back firmly into floor.","Lift both legs and shoulders slightly off floor simultaneously.","Hold with lower back glued to mat — don't let it arch.","Bend knees to 90° if the arch appears — reduces lever arm."]
   },
   "Side Plank Right": {
     note:"On right forearm, feet stacked. Keep body in a straight line, don't sink into shoulder. Hold for 40 seconds.", focus:"Right obliques · Transverse abdominis",
@@ -317,32 +396,73 @@ const EXDB = {
   "Glute Bridge Pulses": {
     note:"Feet flat, arms by sides. Drive hips up, squeeze glutes. Small pulses at the top — don't drop between reps.", focus:"Glutes · Posterior chain",
     diag:[
-      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,50,62)+ln(82,62,82,56)+ln(50,62,38,52)+ln(38,52,28,62)+ln(70,62,72,54)+ln(60,62,62,54))},
-      {label:"Bridge", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,68,54,true)+ln(68,54,50,44,true)+ln(50,44,38,56)+ln(38,56,28,62)+ln(82,62,82,56)+ln(72,58,74,52)+ln(62,58,64,52))}
+      {label:"Start — flat", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(60,68,50,56)+ln(50,56,46,68)+
+        ln(36,68,34,60)+ln(26,68,24,60))},
+      {label:"Bridge — hips high", d:svg(120,75,
+        fl(68,5,115)+hd(100,58,7)+
+        ln(100,65,80,68)+ln(80,68,20,68)+
+        ln(100,65,97,59)+
+        ln(80,68,66,52,true)+ln(66,52,50,46,true)+ln(50,46,44,68)+
+        ln(36,68,34,60)+ln(26,68,24,60))}
     ],
-    steps:["Lie flat, feet flat on floor hip-width apart, arms by sides.","Drive hips up by squeezing glutes hard.","At top, do small controlled pulses — a few centimetres up and down.","Keep hips high throughout — don't drop between pulses.","Squeeze glutes on every pulse."]
+    steps:["Lie flat, feet flat on floor hip-width apart, arms by sides.","Drive hips up by squeezing glutes hard — form a straight line from knees to shoulders.","At top, do small controlled pulses — a few centimetres up and down.","Keep hips high throughout — don't drop between pulses.","Squeeze glutes on every single pulse."]
   },
-  "Side Lying Hip Raise Right": {
-    note:"Lie on right side, bottom knee slightly bent. Drive hips up using obliques and glute med. Don't load through shoulder.", focus:"Right obliques · Glute med",
+  "Flutter Kicks": {
+    note:"Lie flat, legs raised about 15cm off floor. Alternate small rapid up-down kicks. Arms flat by sides throughout. Keep lower back pressed down.", focus:"Lower abs · Hip flexors · Core endurance",
     diag:[
-      {label:"Down", d:svg(100,70,fl(62)+hd(15,52)+ln(15,60,50,62)+ln(50,62,70,60)+ln(70,60,85,62)+ln(50,62,65,62)+ln(15,60,15,54)+ln(22,62,22,55))},
-      {label:"Raise", d:svg(100,70,fl(62)+hd(15,52)+ln(15,60,50,56,true)+ln(50,56,70,52,true)+ln(70,52,85,54,true)+ln(50,62,65,62)+ln(15,60,15,54)+ln(22,62,22,56))}
+      {label:"Start — legs raised", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(85,66,82,58)+ln(75,66,72,58)+
+        ln(55,68,46,58)+ln(42,68,34,58))},
+      {label:"Flutter — alternating", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,60,68)+ln(60,68,20,68)+
+        ln(100,63,97,57)+
+        ln(85,66,82,58)+ln(75,66,72,58)+
+        ln(55,68,44,54,true)+ln(42,68,36,62,true))}
     ],
-    steps:["Lie on right side, bottom knee can be slightly bent for balance.","Top leg straight, body in a straight line.","Drive hips up using obliques and glute med.","Don't prop or load through shoulder — use hip as base.","Hold 1 second at top, lower with control."]
+    steps:["Lie flat, arms by sides — palms pressing lightly into the mat.","Press lower back firmly into the floor and keep it there throughout.","Raise both legs about 15cm off the floor.","Alternate rapid small kicks up and down — like swimming freestyle.","If lower back lifts, raise legs slightly higher to reduce the lever."]
   },
-  "Side Lying Hip Raise Left": {
-    note:"Switch to left side. Drive hips up, keep hips stacked and facing forward. 1 second hold at top.", focus:"Left obliques · Glute med",
+  "Seated Russian Twist": {
+    note:"Sit with knees bent, lean back slightly to engage abs. Rotate torso side to side touching floor each side. Arms stay below chest height.", focus:"Obliques · Rotational core strength",
     diag:[
-      {label:"Down", d:svg(100,70,fl(62)+hd(85,52)+ln(85,60,50,62)+ln(50,62,30,60)+ln(30,60,15,62)+ln(50,62,35,62)+ln(85,60,85,54)+ln(78,62,78,55))},
-      {label:"Raise", d:svg(100,70,fl(62)+hd(85,52)+ln(85,60,50,56,true)+ln(50,56,30,52,true)+ln(30,52,15,54,true)+ln(50,62,35,62)+ln(85,60,85,54)+ln(78,62,78,56))}
+      {label:"Centre — lean back", d:svg(120,80,
+        fl(72,5,115)+hd(80,30,7)+
+        ln(80,37,72,56)+ln(72,56,55,65)+ln(55,65,38,72)+
+        ln(72,56,86,68)+ln(86,68,100,72)+
+        ln(80,37,76,31)+
+        ln(68,44,58,48)+ln(58,48,62,52))},
+      {label:"Rotate to side", d:svg(120,80,
+        fl(72,5,115)+hd(80,30,7)+
+        ln(80,37,72,56)+ln(72,56,55,65)+ln(55,65,38,72)+
+        ln(72,56,86,68)+ln(86,68,100,72)+
+        ln(80,37,76,31)+
+        ln(68,44,52,42,true)+ln(52,42,40,46,true)+ln(40,46,36,52,true))}
     ],
-    steps:["Lie on left side, bottom knee slightly bent.","Stack hips directly on top of each other.","Drive hips up — focus on left oblique and left glute med.","Keep hips facing forward — don't rotate toward ceiling.","1 second hold at top, controlled descent."]
+    steps:["Sit on floor, knees bent, feet flat or slightly raised.","Lean back until you feel your abs engage — roughly 45°.","Clasp hands together in front of your chest — keep them below chest height.","Rotate your torso to the right and touch the floor beside your hip.","Rotate back through centre and touch the floor on the left. Keep it controlled."]
   },
   "V-Up Crunches": {
     note:"Knees slightly bent, hands on temples. Crunch up toward knees and lower slowly. Alternate legs for more range.", focus:"Full rectus abdominis",
     diag:[
-      {label:"Start", d:svg(100,70,fl(62)+hd(82,54)+ln(82,62,20,62)+ln(82,62,82,56)+ln(30,62,28,54)+ln(22,62,20,54))},
-      {label:"Crunch", d:svg(100,70,fl(62)+hd(70,42,7)+ln(70,49,55,55,true)+ln(55,55,40,52,true)+ln(40,52,25,48,true)+ln(70,49,70,44)+ln(62,46,54,42)+ln(54,42,62,38))}
+      {label:"Start — flat", d:svg(120,75,
+        fl(68,5,115)+hd(100,56,7)+
+        ln(100,63,20,68)+
+        ln(100,63,97,57)+
+        ln(88,65,84,58)+ln(84,58,86,53)+
+        ln(80,65,76,58)+ln(76,58,78,53))},
+      {label:"V-Up crunch", d:svg(120,75,
+        fl(68,5,115)+hd(88,44,7)+
+        ln(88,51,70,58,true)+ln(70,58,50,62)+
+        ln(88,51,85,45)+
+        ln(50,62,40,50,true)+ln(40,50,32,38,true)+
+        ln(44,62,36,50,true)+ln(36,50,28,38,true)+
+        ln(82,48,76,44)+ln(76,44,80,40))}
     ],
     steps:["Lie flat, knees slightly bent, hands on temples.","In one movement crunch upper body up while drawing knees toward chest.","Meet in the middle — elbows and knees as close as comfortable.","Lower slowly — don't just drop back down.","Alternate legs for more range: one extends as the other bends."]
   },
@@ -609,7 +729,7 @@ const ROUTINES = [
     workClass: "work-phase",
     restClass: "rest-phase",
     progressColor: "#4f46e5",
-    exercises: ["Heel Touches","Reverse Crunch","Crunch Circles","Toe Taps","Leg Raises","Oblique Crunch Right","Oblique Crunch Left","Hollow Hold","Side Lying Hip Raise Right","Side Lying Hip Raise Left","Windscreen Wipers","Hip Flexor Compressions Right","Hip Flexor Compressions Left","Glute Bridge Pulses","V-Up Crunches"]
+    exercises: ["Heel Touches","Reverse Crunch","Crunch Circles","Toe Taps","Leg Raises","Oblique Crunch Right","Oblique Crunch Left","Hollow Hold","Flutter Kicks","Seated Russian Twist","Windscreen Wipers","Hip Flexor Compressions Right","Hip Flexor Compressions Left","Glute Bridge Pulses","V-Up Crunches"]
   },
   {
     id: 2,
@@ -679,16 +799,20 @@ function goBack() {
 function updateDisplay() {
   if (!activeRoutine) return;
   const exNames = activeRoutine.exercises;
-  const exName = exNames[current];
+  // During rest, show the NEXT exercise on the card so user can prepare
+  const displayIdx = (!isWork && current < exNames.length - 1) ? current + 1 : current;
+  const exName = exNames[displayIdx];
   const ex = EXDB[exName];
   document.getElementById('timerDisplay').textContent = timeLeft;
-  document.getElementById('exNumber').textContent = `Exercise ${current+1} of ${exNames.length}`;
+  document.getElementById('exNumber').textContent = isWork
+    ? `Exercise ${current+1} of ${exNames.length}`
+    : `Up next — exercise ${current+2} of ${exNames.length}`;
   document.getElementById('exName').textContent = exName;
   document.getElementById('exNote').textContent = ex ? ex.note : '';
   const focusEl = document.getElementById('exFocus');
   focusEl.textContent = ex ? ex.focus : '';
   focusEl.className = 'ex-focus ' + (activeRoutine.id >= 2 ? 'badge-stretch' : 'badge-core');
-  document.getElementById('nextName').textContent = exNames[current+1] || 'Done!';
+  document.getElementById('nextName').textContent = isWork ? (exNames[current+1] || 'Done!') : exName;
   document.getElementById('phaseLabel').textContent = isWork ? (activeRoutine.id >= 2 ? 'HOLD' : 'WORK') : 'REST';
   const cd = timeLeft <= 3 && timeLeft > 0;
   const wrap = document.getElementById('ringWrap');
@@ -697,7 +821,7 @@ function updateDisplay() {
   document.getElementById('ringProgress').style.strokeDashoffset = C * (1 - timeLeft / total);
   document.getElementById('progressFill').style.width = (current / exNames.length * 100) + '%';
   document.getElementById('progressLabel').textContent = `${current} of ${exNames.length} complete`;
-  if (howToOpen) renderHowTo(current);
+  if (howToOpen) renderHowTo(displayIdx);
 }
 
 function renderHowTo(idx) {
@@ -763,7 +887,9 @@ function tick() {
       if (nx) speak((activeRoutine.id >= 2 ? 'Rest. Next — ' : 'Rest. Next up — ') + nx);
     } else {
       isWork = true; current++; timeLeft = activeRoutine.work;
-      speak(activeRoutine.exercises[current] + (activeRoutine.id >= 2 ? '. Hold.' : '. Go.'));
+      const nextEx = activeRoutine.exercises[current];
+      const exData = EXDB[nextEx];
+      speak((exData && exData.announce ? exData.announce : nextEx) + (activeRoutine.id >= 2 ? '. Hold.' : '. Go.'));
     }
   }
   updateDisplay();
@@ -789,7 +915,9 @@ function toggleTimer() {
     if (current === 0 && isWork && timeLeft === activeRoutine.work && !inIntro) {
       inIntro = true;
       timeLeft = INTRO;
-      speak('Get ready. ' + activeRoutine.exercises[0] + ' in 10 seconds.');
+      const firstEx = EXDB[activeRoutine.exercises[0]];
+      const firstName = firstEx && firstEx.announce ? firstEx.announce : activeRoutine.exercises[0];
+      speak('Get ready. ' + firstName + ' in 10 seconds.');
     }
     interval = setInterval(tick, 1000);
   }

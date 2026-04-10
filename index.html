@@ -771,9 +771,49 @@ function buzz(){beep(80,0.15,'square',0.5);setTimeout(()=>beep(80,0.15,'square',
 function countdownBeep(){beep(880,0.1,'sine',0.3);}
 function speak(t){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=0.95;u.pitch=1;u.volume=1;window.speechSynthesis.speak(u);}
 
+// ── Shuffle — keeps Right/Left pairs together ──────────────────────────────
+function shuffleExercises(exercises) {
+  // Group exercises into units: paired (Right then Left) stay as a 2-item block, singles as 1-item block
+  const units = [];
+  const used = new Set();
+  for (let i = 0; i < exercises.length; i++) {
+    if (used.has(i)) continue;
+    const name = exercises[i];
+    // Check if this is a "Right" variant with a matching "Left" immediately after or elsewhere
+    const baseName = name.replace(/ Right$/, '').replace(/ Left$/, '');
+    const isRight = name.endsWith(' Right');
+    const isLeft  = name.endsWith(' Left');
+    if (isRight) {
+      // Find the matching Left
+      const leftName = baseName + ' Left';
+      const leftIdx = exercises.indexOf(leftName);
+      if (leftIdx !== -1 && !used.has(leftIdx)) {
+        units.push([name, leftName]);
+        used.add(i); used.add(leftIdx);
+        continue;
+      }
+    } else if (isLeft) {
+      // Already handled when Right was processed — skip if used
+      if (used.has(i)) continue;
+      // Orphan left (no matching right found) — treat as single
+    }
+    units.push([name]);
+    used.add(i);
+  }
+  // Fisher-Yates shuffle the units
+  for (let i = units.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [units[i], units[j]] = [units[j], units[i]];
+  }
+  // Flatten back to exercise list
+  return units.flat();
+}
+
 // ── Navigation ────────────────────────────────────────────────────────────────
 function startRoutine(idx) {
-  activeRoutine = ROUTINES[idx];
+  activeRoutine = Object.assign({}, ROUTINES[idx]);
+  // Shuffle exercises each time, keeping pairs together
+  activeRoutine.exercises = shuffleExercises([...ROUTINES[idx].exercises]);
   current = 0; timeLeft = activeRoutine.work; isWork = true; running = false; inIntro = false;
   howToOpen = false;
   document.getElementById('menuScreen').style.display = 'none';

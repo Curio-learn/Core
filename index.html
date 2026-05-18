@@ -103,13 +103,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <div class="rc-icon">💪</div>
         <div class="rc-title">Full Core</div>
         <div class="rc-sub">No restrictions — all exercises</div>
-        <div class="rc-badge badge-core">15 ex · 40/20</div>
+        <div class="rc-badge badge-core">15 ex · 45/15</div>
       </div>
       <div class="routine-card" onclick="startRoutine(1)">
         <div class="rc-icon">🩹</div>
         <div class="rc-title">Shoulder Safe Core</div>
         <div class="rc-sub">Zero shoulder load or arm elevation</div>
-        <div class="rc-badge badge-core">15 ex · 40/20</div>
+        <div class="rc-badge badge-core">15 ex · 45/15</div>
       </div>
       <div class="routine-card" onclick="startRoutine(2)">
         <div class="rc-icon">🧘</div>
@@ -131,7 +131,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <button class="back-btn" onclick="goBack()">← Back</button>
     <div class="header">
       <h1 id="routineTitle">Full Core</h1>
-      <p id="routineSub">15 exercises · 40s on · 20s off</p>
+      <p id="routineSub">15 exercises · 45s on · 15s off</p>
     </div>
 
     <div class="timer-ring work-phase" id="ringWrap">
@@ -576,8 +576,8 @@ const ROUTINES = [
   {
     id: 0,
     title: "Full Core",
-    sub: "15 exercises · 40s on · 20s off",
-    work: 40, rest: 20,
+    sub: "15 exercises · 45s on · 15s off",
+    work: 45, rest: 15,
     icon: "💪",
     completeMsg: "Full core circuit done.",
     badgeClass: "badge-core",
@@ -589,15 +589,15 @@ const ROUTINES = [
   {
     id: 1,
     title: "Shoulder Safe Core",
-    sub: "15 exercises · 40s on · 20s off",
-    work: 40, rest: 20,
+    sub: "15 exercises · 45s on · 15s off",
+    work: 45, rest: 15,
     icon: "🩹",
     completeMsg: "Shoulder safe circuit done. Great work.",
     badgeClass: "badge-core",
     workClass: "work-phase",
     restClass: "rest-phase",
     progressColor: "#4f46e5",
-    exercises: ["Heel Touches","Reverse Crunch","Crunch Circles","Toe Taps","Leg Raises","Oblique Crunch Right","Oblique Crunch Left","Hollow Hold","Flutter Kicks","Seated Russian Twist","Windscreen Wipers","Hip Flexor Compressions Right","Hip Flexor Compressions Left","Glute Bridge Pulses","V-Up Crunches"]
+    exercises: ["Heel Touches","Reverse Crunch","Crunch Circles","Dead Bug","Leg Raises","Oblique Crunch Right","Oblique Crunch Left","Hollow Hold","Flutter Kicks","Seated Russian Twist","Windscreen Wipers","Hip Flexor Compressions Right","Hip Flexor Compressions Left","Glute Bridge Pulses","V-Up Crunches"]
   },
   {
     id: 2,
